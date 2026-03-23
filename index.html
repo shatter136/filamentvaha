@@ -109,19 +109,19 @@
             const rows = text.trim().split('\n');
             const lastRow = rows[rows.length - 1].split(',');
 
-            // Dáta podľa tvojho screenshotu
-            const idDrziaka = lastRow[0];   // A
-            const material  = lastRow[2];   // C
-            const hexColor  = "#" + lastRow[3].replace("#", ""); // D (istota, že tam bude mriežka)
-            const vaha      = parseFloat(lastRow[4].replace(",", ".")); // E (ošetrenie čiarky)
-            const dlzka     = lastRow[5];   // F
+           // Opravené načítanie dát (odolné voči slovenským čiarkam)
+const vahaRaw = lastRow[4] || "0";
+const vaha = parseFloat(vahaRaw.replace(',', '.').replace(' ', '')); // Zmení 795,40 na 795.40
 
-            // Update textových polí
-            document.getElementById('weight-val').innerText = Math.round(vaha);
-            document.getElementById('mat-label').innerText = material;
-            document.getElementById('data-hex').innerText = hexColor;
-            document.getElementById('data-len').innerText = dlzka;
-            document.getElementById('data-id').innerText = idDrziaka;
+const dlzkaRaw = lastRow[5] || "0";
+const dlzka = dlzkaRaw.replace(',', '.');
+
+// Update polí
+document.getElementById('weight-val').innerText = Math.round(vaha) || 0;
+document.getElementById('mat-label').innerText = lastRow[2] || "Neznámy materiál";
+document.getElementById('data-hex').innerText = lastRow[3] || "#00f2ff";
+document.getElementById('data-len').innerText = dlzka;
+document.getElementById('data-id').innerText = lastRow[0];
 
             // Dynamická zmena farby podľa stĺpca D
             document.documentElement.style.setProperty('--neon-cyan', hexColor);
