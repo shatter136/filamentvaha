@@ -157,40 +157,47 @@
                 const text = await response.text();
                 const allRows = text.trim().split(/\r?\n/);
                 
-                // Nájdi posledný neprázdny riadok
-                let lastRowRaw = allRows[allRows.length - 1];
+                // Zoberieme posledný riadok, kde sú reálne dáta
+                let lastRowRaw = "";
                 for (let i = allRows.length - 1; i >= 0; i--) {
-                    if (allRows[i].includes(',') && !allRows[i].includes('Váha (g)')) {
+                    if (allRows[i].length > 10 && !allRows[i].includes('Váha')) {
                         lastRowRaw = allRows[i];
                         break;
                     }
                 }
 
-                // ŠPECIÁLNY TRYSKÁČ NA ČIARKY:
-                // Rozdelí riadok, ale ignoruje čiarky vo vnútri úvodzoviek (napr. "266,70")
-                const lastRow = lastRowRaw.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(item => item.replace(/"/g, '').trim());
+                // TOTO JE TO "NATVRDO":
+                // Rozsekáme riadok podľa úvodzoviek, nie podľa čiarok!
+                // To znamená, že "266,70" ostane vcelku, lebo je v jedných úvodzovkách.
+                const parts = lastRowRaw.split('"');
+                
+                // Google CSV formát s úvodzovkami:
+                // parts[1] = ID (A)
+                // parts[5] = Materiál (C)
+                // parts[7] = HEX (D)
+                // parts[9] = Váha (E)
+                // parts[11] = Metre (F)
 
-                console.log("OPRAVENÉ DÁTA:", lastRow);
+                const idDrziaka = parts[1] || "---";
+                const material  = parts[5] || "---";
+                const hexColor  = (parts[7] || "00f2ff").trim();
+                const vahaRaw   = parts[9] || "0";
+                const metreRaw  = parts[11] || "0";
 
-                // INDEXY (A=0, B=1, C=2, D=3, E=4, F=5)
-                const vahaRaw = lastRow[4] || "0"; 
-                const dlzkaRaw = lastRow[5] || "0"; // TU SÚ METRE
-                const material = lastRow[2] || "---";
-                let hex = (lastRow[3] || "00f2ff").trim();
-                if (!hex.startsWith('#')) hex = '#' + hex;
+                console.log("NATVRDO NAČÍTANÉ:", {vahaRaw, metreRaw});
 
-                // Prevod váhy na číslo (vymažeme čiarku a všetko za ňou pre istotu)
                 const vaha = parseFloat(vahaRaw.replace(',', '.'));
+                const finalHex = hexColor.startsWith('#') ? hexColor : '#' + hexColor;
 
-                // AKTUALIZÁCIA WEBU
+                // UPDATE WEBU
                 document.getElementById('weight-val').innerText = Math.round(vaha);
                 document.getElementById('mat-label').innerText = material;
-                document.getElementById('data-hex').innerText = hex;
-                document.getElementById('data-len').innerText = dlzkaRaw; // TU UŽ BUDE 266,70
-                document.getElementById('data-id').innerText = lastRow[0];
+                document.getElementById('data-hex').innerText = finalHex;
+                document.getElementById('data-len').innerText = metreRaw; // TU UŽ BUDE 266,70
+                document.getElementById('data-id').innerText = idDrziaka;
 
-                // Vizualizácia (farby a bar)
-                document.documentElement.style.setProperty('--neon-cyan', hex);
+                // Farby a bar (nech to svieti!)
+                document.documentElement.style.setProperty('--neon-cyan', finalHex);
                 const percent = Math.min(Math.max((vaha / 1000) * 100, 0), 100);
                 const activeSegments = Math.round((percent / 100) * 20);
                 const segments = document.querySelectorAll('.segment');
@@ -198,17 +205,13 @@
                     if (index < activeSegments) {
                         seg.classList.add('on');
                         seg.style.backgroundImage = `linear-gradient(135deg, var(--neon-cyan) ${100-percent}%, #fff31c 100%)`;
-                        seg.style.boxShadow = `0 0 15px ${hex}`;
                     } else {
                         seg.classList.remove('on');
                         seg.style.backgroundImage = '';
-                        seg.style.boxShadow = '';
                     }
                 });
 
-            } catch (e) {
-                console.error("Chyba v dátach:", e);
-            }
+            } catch (e) { console.error("Chyba:", e); }
         }
 
         if (!localStorage.getItem('myCsvUrl')) { setTimeout(resetLink, 500); }
