@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filament Dashboard 80s</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --neon-cyan: #00f2ff;
+            --neon-blue: #0080ff;
+            --neon-yellow: #f9d71c; /* Curious Yellow vibe */
+            --segment-off: #1a1a1a;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--neon-cyan);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .dashboard {
+            border: 4px solid var(--neon-blue);
+            padding: 40px;
+            box-shadow: 0 0 20px var(--neon-blue);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px var(--neon-cyan);
+            letter-spacing: 5px;
+        }
+
+        /* Digitálny bar */
+        .bar-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .segment {
+            width: 15px;
+            height: 40px;
+            background-color: var(--segment-off);
+            border: 1px solid #111;
+            transition: all 0.3s;
+        }
+
+        .segment.on {
+            background-color: var(--neon-cyan);
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        .segment.warning {
+            background-color: var(--neon-yellow);
+            box-shadow: 0 0 15px var(--neon-yellow);
+        }
+
+        .stats {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 15px var(--neon-yellow);
+        }
+
+        .label {
+            font-size: 0.8rem;
+            color: var(--neon-blue);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <h1>Filament Status</h1>
+        
+        <div class="bar-container" id="pixel-bar">
+            </div>
+
+        <div class="stats"><span id="weight-val">0</span>g</div>
+        <div class="label">MK3S SUPPLY LEVEL</div>
+    </div>
+
+    <script>
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxFZl_JAITJGkdodcTo1ZBF6Do-cjigonJjrTJUDsOG8AWZL9HAmUUWOAd9NkwIBMCYHtOqVTZ9KV7/pub?gid=233832092&single=true&output=csv'; 
+    const barContainer = document.getElementById('pixel-bar');
+    const totalSegments = 20;
+
+    for (let i = 0; i < totalSegments; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'segment';
+        barContainer.appendChild(seg);
+    }
+
+    async function updateData() {
+        try {
+            const response = await fetch(csvUrl);
+            const text = await response.text();
+            const rows = text.trim().split('\n');
+            const lastRow = rows[rows.length - 1].split(',');
+
+            // Dáta podľa tvojho screenshotu
+            const idDrziaka = lastRow[0];   // A
+            const material  = lastRow[2];   // C
+            const hexColor  = "#" + lastRow[3].replace("#", ""); // D (istota, že tam bude mriežka)
+            const vaha      = parseFloat(lastRow[4].replace(",", ".")); // E (ošetrenie čiarky)
+            const dlzka     = lastRow[5];   // F
+
+            // Update textových polí
+            document.getElementById('weight-val').innerText = Math.round(vaha);
+            document.getElementById('mat-label').innerText = material;
+            document.getElementById('data-hex').innerText = hexColor;
+            document.getElementById('data-len').innerText = dlzka;
+            document.getElementById('data-id').innerText = idDrziaka;
+
+            // Dynamická zmena farby podľa stĺpca D
+            document.documentElement.style.setProperty('--neon-cyan', hexColor);
+            document.getElementById('weight-val').style.color = hexColor;
+            document.getElementById('weight-val').style.textShadow = `0 0 15px ${hexColor}`;
+
+            // Logika baru (0-1000g)
+            const percent = Math.min(Math.max((vaha / 1000) * 100, 0), 100);
+            const activeSegments = Math.round((percent / 100) * totalSegments);
+            const segments = document.querySelectorAll('.segment');
+
+            segments.forEach((seg, index) => {
+                if (index < activeSegments) {
+                    seg.classList.add('on');
+                    seg.style.backgroundColor = hexColor;
+                    seg.style.boxShadow = `0 0 10px ${hexColor}`;
+                } else {
+                    seg.classList.remove('on');
+                    seg.style.backgroundColor = '';
+                    seg.style.boxShadow = '';
+                }
+            });
+
+        } catch (e) {
+            console.error("Chyba: Možno nie sú dáta v tabuľke alebo zlý link.");
+        }
+    }
+
+    setInterval(updateData, 15000); // 15 sekúnd je ideál, nech nespamujeme Google
+    updateData();
+</script>
+</body>
+</html>
