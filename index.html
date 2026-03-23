@@ -106,34 +106,67 @@
             try {
                 const response = await fetch(csvUrl + "&t=" + new Date().getTime());
                 const text = await response.text();
-                const rows = text.trim().split(/\r?\n/);
-                const lastRow = rows[rows.length - 1].split(',');
+                
+                // Rozdelíme na riadky a odfiltrujeme tie, ktoré sú prázdne
+                const allRows = text.trim().split(/\r?\n/);
+                const rows = allRows.filter(row => {
+                    const columns = row.split(',');
+                    // Riadok je dobrý, ak v 5. stĺpci (váha) je niečo iné ako "0" alebo prázdno
+                    return columns[4] && columns[4].replace(/"/g, '') !== "0" && columns[4].trim() !== "";
+                });
 
-                // TOTO JE DÔLEŽITÉ: Vypíše nám to do konzoly (F12), čo kód reálne číta
-                console.log("DEBUG - Celý riadok:", lastRow);
+                if (rows.length === 0) {
+                    // Ak sú všetky riadky "nulové", zober aspoň ten úplne posledný, nech nie sme v chybe
+                    var lastRow = allRows[allRows.length - 1].split(',');
+                } else {
+                    var lastRow = rows[rows.length - 1].split(',');
+                }
 
-                // Skúsime nájsť váhu (stĺpec E je index 4, ale skúsime aj okolité, ak by bol posun)
+                console.log("DEBUG - Vybraný riadok s dátami:", lastRow);
+
+                // Indexy podľa tvojho screenshotu (A=0, B=1, C=2, D=3, E=4, F=5)
                 const vahaRaw = lastRow[4] || "0"; 
                 const material = lastRow[2] || "Neznámy";
                 const hexColorRaw = lastRow[3] || "00f2ff";
                 const dlzkaRaw = lastRow[5] || "0";
+                const idDrziaka = lastRow[0] || "---";
 
-                console.log("DEBUG - Načítaná váha surová:", vahaRaw);
-
-                // Prevod na číslo
+                // Prevod a čistenie
                 const vaha = parseFloat(vahaRaw.replace(/"/g, '').replace(',', '.'));
-                
-                // Update webu
-                document.getElementById('weight-val').innerText = Math.round(vaha) || 0;
-                document.getElementById('mat-label').innerText = material.replace(/"/g, '');
-                
                 let finalHex = hexColorRaw.replace(/"/g, '').trim();
                 if (!finalHex.startsWith('#')) finalHex = '#' + finalHex;
+
+                // AKTUALIZÁCIA WEBU
+                document.getElementById('weight-val').innerText = Math.round(vaha);
+                document.getElementById('mat-label').innerText = material.replace(/"/g, '');
                 document.getElementById('data-hex').innerText = finalHex;
-                
-                // Nastavenie farieb
+                document.getElementById('data-len').innerText = dlzkaRaw.replace(/"/g, '');
+                document.getElementById('data-id').innerText = idDrziaka.replace(/"/g, '');
+
+                // Farby a Bar (toto už poznáš)
                 document.documentElement.style.setProperty('--neon-cyan', finalHex);
-                // ... zvyšok kódu pre bar ostáva rovnaký
+                document.getElementById('weight-val').style.color = finalHex;
+                document.getElementById('weight-val').style.textShadow = `0 0 15px ${finalHex}`;
+
+                const percent = Math.min(Math.max((vaha / 1000) * 100, 0), 100);
+                const activeSegments = Math.round((percent / 100) * totalSegments);
+                const segments = document.querySelectorAll('.segment');
+                segments.forEach((seg, index) => {
+                    if (index < activeSegments) {
+                        seg.classList.add('on');
+                        seg.style.backgroundColor = finalHex;
+                        seg.style.boxShadow = `0 0 10px ${finalHex}`;
+                    } else {
+                        seg.classList.remove('on');
+                        seg.style.backgroundColor = '';
+                        seg.style.boxShadow = '';
+                    }
+                });
+
+            } catch (e) {
+                console.error("CHYBA:", e.message);
+            }
+        }
 
 // Update polí
 document.getElementById('weight-val').innerText = Math.round(vaha) || 0;
