@@ -148,60 +148,67 @@
             if (newLink) { localStorage.setItem('myCsvUrl', newLink); location.reload(); }
         }
 
-        async function updateData() {
+       async function updateData() {
             const csvUrl = localStorage.getItem('myCsvUrl');
-            if (!csvUrl) { document.getElementById('mat-label').innerText = "VLOŽTE LINK DOLE"; return; }
+            if (!csvUrl) return;
+
             try {
                 const response = await fetch(csvUrl + "&t=" + new Date().getTime());
                 const text = await response.text();
                 const allRows = text.trim().split(/\r?\n/);
                 
-                // Opravené rozdeľovanie riadkov (rieši čiarky v číslach)
-                let validRows = allRows.filter(row => {
-                    // Tento regex rozdelí riadok podľa čiarok, ale ignoruje tie v úvodzovkách
-                    const cols = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-                    const v = cols[4] ? cols[4].replace(/"/g, '').trim() : "";
-                    return v !== "" && v !== "0" && v !== "Váha (g)";
-                });
+                // Nájdi posledný neprázdny riadok
+                let lastRowRaw = allRows[allRows.length - 1];
+                for (let i = allRows.length - 1; i >= 0; i--) {
+                    if (allRows[i].includes(',') && !allRows[i].includes('Váha (g)')) {
+                        lastRowRaw = allRows[i];
+                        break;
+                    }
+                }
 
-                if (validRows.length === 0) return;
-                
-                // Zoberieme posledný riadok a znova ho inteligentne rozdelíme
-                const lastRowRaw = validRows[validRows.length - 1];
-                const lastRow = lastRowRaw.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(c => c.replace(/"/g, ''));
+                // ŠPECIÁLNY TRYSKÁČ NA ČIARKY:
+                // Rozdelí riadok, ale ignoruje čiarky vo vnútri úvodzoviek (napr. "266,70")
+                const lastRow = lastRowRaw.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(item => item.replace(/"/g, '').trim());
 
-                console.log("DEBUG - Opravený riadok:", lastRow);
+                console.log("OPRAVENÉ DÁTA:", lastRow);
 
-                // Teraz už indexy budú sedieť presne
-                const vaha = parseFloat(lastRow[4].replace(',', '.'));
-                const dlzka = lastRow[5]; // Tu už bude celých 266,70
-                const material = lastRow[2];
-                let hex = lastRow[3].trim();
+                // INDEXY (A=0, B=1, C=2, D=3, E=4, F=5)
+                const vahaRaw = lastRow[4] || "0"; 
+                const dlzkaRaw = lastRow[5] || "0"; // TU SÚ METRE
+                const material = lastRow[2] || "---";
+                let hex = (lastRow[3] || "00f2ff").trim();
                 if (!hex.startsWith('#')) hex = '#' + hex;
 
-                // Update UI
+                // Prevod váhy na číslo (vymažeme čiarku a všetko za ňou pre istotu)
+                const vaha = parseFloat(vahaRaw.replace(',', '.'));
+
+                // AKTUALIZÁCIA WEBU
                 document.getElementById('weight-val').innerText = Math.round(vaha);
                 document.getElementById('mat-label').innerText = material;
                 document.getElementById('data-hex').innerText = hex;
-                document.getElementById('data-len').innerText = dlzka; // Zobrazí správne metre
+                document.getElementById('data-len').innerText = dlzkaRaw; // TU UŽ BUDE 266,70
                 document.getElementById('data-id').innerText = lastRow[0];
 
-                // Dynamický Gradient pre bar (0-1000g)
-                // Tu počítame percentá a na základe nich meníme gradient v CSS
+                // Vizualizácia (farby a bar)
+                document.documentElement.style.setProperty('--neon-cyan', hex);
                 const percent = Math.min(Math.max((vaha / 1000) * 100, 0), 100);
                 const activeSegments = Math.round((percent / 100) * 20);
                 const segments = document.querySelectorAll('.segment');
                 segments.forEach((seg, index) => {
                     if (index < activeSegments) {
                         seg.classList.add('on');
-                        // Gradient pre bar. Čím viac percent, tým dlhšia časť bude tyrkysová
-                        seg.style.backgroundImage = `linear-gradient(135deg, var(--neon-cyan) ${100-percent}%, var(--neon-yellow) ${100}%)`;
+                        seg.style.backgroundImage = `linear-gradient(135deg, var(--neon-cyan) ${100-percent}%, #fff31c 100%)`;
+                        seg.style.boxShadow = `0 0 15px ${hex}`;
                     } else {
                         seg.classList.remove('on');
                         seg.style.backgroundImage = '';
+                        seg.style.boxShadow = '';
                     }
                 });
-            } catch (e) { console.error(e); }
+
+            } catch (e) {
+                console.error("Chyba v dátach:", e);
+            }
         }
 
         if (!localStorage.getItem('myCsvUrl')) { setTimeout(resetLink, 500); }
