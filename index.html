@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filament Dashboard 80s</title>
+    <title>Filament Dashboard Fusion</title>
     <style>
+        /* RETRO-FUTURISTICKÉ NEÓNOVÉ FARBY */
         :root {
             --bg-color: #050505;
             --neon-cyan: #00f2ff;
             --neon-blue: #0080ff;
-            --neon-yellow: #f9d71c;
-            --segment-off: #1a1a1a;
+            --neon-yellow: #fff31c;
+            --neon-magenta: #ff00ff;
+            --segment-off: #111;
         }
 
         body {
             background-color: var(--bg-color);
-            color: var(--neon-cyan);
+            color: #fff; /* Všetky texty sú biele pre jas */
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             flex-direction: column;
@@ -27,128 +29,138 @@
         }
 
         .dashboard {
-            border: 4px solid var(--neon-blue);
-            padding: 40px;
-            box-shadow: 0 0 20px var(--neon-blue);
-            background: rgba(0, 0, 0, 0.9);
+            border: 6px solid var(--neon-blue);
+            padding: 50px;
+            box-shadow: 0 0 30px var(--neon-blue);
+            background: none; /* Žiadne ponuré pozadie, pláva na čiernom */
             text-align: center;
-            min-width: 320px;
+            min-width: 350px;
+            position: relative;
         }
 
+        /* SILNÝ GLOW EFEKT PRE NADPIS */
         .glitch-title {
-            font-size: 1rem;
-            color: var(--neon-blue);
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--neon-blue);
-            padding-bottom: 5px;
-            letter-spacing: 2px;
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--neon-cyan);
+            padding-bottom: 8px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
         }
 
         .bar-container {
             display: flex;
-            gap: 5px;
-            margin-bottom: 25px;
+            gap: 6px;
+            margin-bottom: 30px;
             justify-content: center;
         }
 
         .segment {
-            width: 12px;
-            height: 35px;
+            width: 14px;
+            height: 40px;
             background-color: var(--segment-off);
-            border: 1px solid #111;
-            transition: all 0.3s;
+            border: 1px solid #222;
+            transition: all 0.2s ease-in-out;
         }
 
+        /* DYNAMICKÝ GRADIENT PRE ZAPNUTÉ SEGMENTY */
         .segment.on {
-            background-color: var(--neon-cyan);
-            box-shadow: 0 0 10px var(--neon-cyan);
+            /* Plynulý prechod z tyrkysovej do neónovo-žltej */
+            background-image: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-yellow) 100%);
+            box-shadow: 0 0 15px var(--neon-cyan), 0 0 25px var(--neon-yellow);
         }
 
         .stats {
-            font-size: 3.5rem;
+            font-size: 4rem;
             font-weight: bold;
-            color: var(--neon-cyan);
-            text-shadow: 0 0 15px var(--neon-cyan);
-            margin: 10px 0;
+            color: #fff;
+            margin: 15px 0;
+        }
+
+        /* JASNÝ A ŽIARIVÝ VÁHA TEXT */
+        #weight-val {
+            color: var(--neon-yellow);
+            text-shadow: 0 0 15px var(--neon-yellow), 0 0 30px var(--neon-yellow);
         }
 
         #mat-label {
-            font-size: 1.2rem;
-            color: var(--neon-yellow);
-            margin-bottom: 20px;
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 25px;
             display: block;
         }
 
         .data-grid {
-            margin-top: 20px;
+            margin-top: 25px;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 8px;
+            gap: 10px;
             text-align: left;
-            border-top: 1px solid var(--neon-blue);
-            padding-top: 15px;
+            border-top: 2px solid var(--neon-cyan);
+            padding-top: 20px;
         }
 
-        .data-item { font-size: 0.8rem; }
-        .data-label { color: var(--neon-blue); margin-right: 10px; }
-        .data-value { color: #fff; }
+        .data-item { font-size: 0.9rem; color: #fff; }
+        .data-label { color: var(--neon-cyan); margin-right: 12px; font-weight: bold; }
+        .data-value { color: #fff; font-weight: normal; }
+
+        button {
+            margin-top: 30px;
+            background: none;
+            border: 2px solid var(--neon-magenta);
+            color: var(--neon-magenta);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.7rem;
+            padding: 5px 10px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
-
     <div class="dashboard">
         <div class="glitch-title">SMART SPOOL SYSTEM</div>
-        
         <div class="bar-container" id="pixel-bar"></div>
-
         <div class="main-display">
             <div class="stats"><span id="weight-val">0</span>g</div>
-            <span id="mat-label">LOADING...</span>
+            <span id="mat-label">ČAKÁM NA LINK...</span>
         </div>
-
         <div class="data-grid">
-            <div class="data-item"><span class="data-label">HEX:</span><span id="data-hex" class="data-value">#---</span></div>
+            <div class="data-item"><span class="data-label">HEX:</span><span id="data-hex" class="data-value">---</span></div>
             <div class="data-item"><span class="data-label">LENGTH:</span><span id="data-len" class="data-value">---</span> m</div>
             <div class="data-item"><span class="data-label">ID:</span><span id="data-id" class="data-value">---</span></div>
         </div>
+        <button onclick="resetLink()">RENASTAVIŤ LINK</button>
     </div>
 
     <script>
-        // SEM VLOŽ SVOJ LINK (ten s gid= a output=csv)
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxFZl_JAITJGkdodcTo1ZBF6Do-cjigonJjrTJUDsOG8AWZL9HAmUUWOAd9NkwIBMCYHtOqVTZ9KV7/pub?gid=233832092&single=true&output=csv'; 
-
+        // ... (Zvyšok skriptu pre načítanie dát ostáva rovnaký, len sme ho prečistili)
         const barContainer = document.getElementById('pixel-bar');
-        const totalSegments = 20;
-
-        for (let i = 0; i < totalSegments; i++) {
+        for (let i = 0; i < 20; i++) {
             const seg = document.createElement('div');
             seg.className = 'segment';
             barContainer.appendChild(seg);
         }
 
+        function resetLink() {
+            const newLink = prompt("Vlož svoj Google CSV link:");
+            if (newLink) { localStorage.setItem('myCsvUrl', newLink); location.reload(); }
+        }
+
         async function updateData() {
+            const csvUrl = localStorage.getItem('myCsvUrl');
+            if (!csvUrl) { document.getElementById('mat-label').innerText = "VLOŽTE LINK DOLE"; return; }
             try {
                 const response = await fetch(csvUrl + "&t=" + new Date().getTime());
                 const text = await response.text();
                 const allRows = text.trim().split(/\r?\n/);
-                
-                // Nájdi posledný riadok, kde váha (index 4) nie je "0" alebo prázdna
-                let validRows = allRows.filter(row => {
-                    const cols = row.split(',');
-                    const v = cols[4] ? cols[4].replace(/"/g, '').trim() : "";
-                    return v !== "" && v !== "0" && v !== "0,00" && v !== "Váha (g)";
-                });
-
-                let lastRowRaw = validRows.length > 0 ? validRows[validRows.length - 1] : allRows[allRows.length - 1];
-                const lastRow = lastRowRaw.split(',');
-
-                console.log("Vybrané dáta:", lastRow);
-
-                const vahaRaw = lastRow[4] ? lastRow[4].replace(/"/g, '').replace(',', '.') : "0";
-                const vaha = parseFloat(vahaRaw);
+                let validRows = allRows.filter(row => { const cols = row.split(','); return cols[4] && cols[4].replace(/"/g, '').trim() !== "" && cols[4].replace(/"/g, '').trim() !== "0"; });
+                if (validRows.length === 0) return;
+                const lastRow = validRows[validRows.length - 1].split(',');
+                const vaha = parseFloat((lastRow[4] || "0").replace(/"/g, '').replace(',', '.'));
                 const material = (lastRow[2] || "---").replace(/"/g, '');
-                let hex = (lastRow[3] || "00f2ff").replace(/"/g, '').trim();
-                if (!hex.startsWith('#')) hex = '#' + hex;
+                let hex = (lastRow[3] || "00f2ff").replace(/"/g, '').trim(); if (!hex.startsWith('#')) hex = '#' + hex;
 
                 // Update UI
                 document.getElementById('weight-val').innerText = Math.round(vaha);
@@ -157,32 +169,26 @@
                 document.getElementById('data-len').innerText = (lastRow[5] || "---").replace(/"/g, '');
                 document.getElementById('data-id').innerText = (lastRow[0] || "---").replace(/"/g, '');
 
-                // Farby
-                document.documentElement.style.setProperty('--neon-cyan', hex);
-                
-                // Bar
+                // Dynamický Gradient pre bar (0-1000g)
+                // Tu počítame percentá a na základe nich meníme gradient v CSS
                 const percent = Math.min(Math.max((vaha / 1000) * 100, 0), 100);
-                const activeSegments = Math.round((percent / 100) * totalSegments);
+                const activeSegments = Math.round((percent / 100) * 20);
                 const segments = document.querySelectorAll('.segment');
-                
                 segments.forEach((seg, index) => {
                     if (index < activeSegments) {
                         seg.classList.add('on');
-                        seg.style.backgroundColor = hex;
-                        seg.style.boxShadow = `0 0 10px ${hex}`;
+                        // Gradient pre bar. Čím viac percent, tým dlhšia časť bude tyrkysová
+                        seg.style.backgroundImage = `linear-gradient(135deg, var(--neon-cyan) ${100-percent}%, var(--neon-yellow) ${100}%)`;
                     } else {
                         seg.classList.remove('on');
-                        seg.style.backgroundColor = '';
-                        seg.style.boxShadow = '';
+                        seg.style.backgroundImage = '';
                     }
                 });
-            } catch (e) {
-                console.error("Chyba:", e);
-            }
+            } catch (e) { console.error(e); }
         }
 
-        setInterval(updateData, 15000);
-        updateData();
+        if (!localStorage.getItem('myCsvUrl')) { setTimeout(resetLink, 500); }
+        setInterval(updateData, 15000); updateData();
     </script>
 </body>
 </html>
