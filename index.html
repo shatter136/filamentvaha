@@ -149,70 +149,68 @@
         }
 
        async function updateData() {
-            const csvUrl = localStorage.getItem('myCsvUrl');
-            if (!csvUrl) return;
+    const csvUrl = localStorage.getItem('myCsvUrl');
+    if (!csvUrl) return;
 
-            try {
-                const response = await fetch(csvUrl + "&t=" + new Date().getTime());
-                const text = await response.text();
-                const allRows = text.trim().split(/\r?\n/);
-                
-                // Zoberieme posledný riadok, kde sú reálne dáta
-                let lastRowRaw = "";
-                for (let i = allRows.length - 1; i >= 0; i--) {
-                    if (allRows[i].length > 10 && !allRows[i].includes('Váha')) {
-                        lastRowRaw = allRows[i];
-                        break;
-                    }
-                }
-
-                // TOTO JE TO "NATVRDO":
-                // Rozsekáme riadok podľa úvodzoviek, nie podľa čiarok!
-                // To znamená, že "266,70" ostane vcelku, lebo je v jedných úvodzovkách.
-                const parts = lastRowRaw.split('"');
-                
-                // Google CSV formát s úvodzovkami:
-                // parts[1] = ID (A)
-                // parts[5] = Materiál (C)
-                // parts[7] = HEX (D)
-                // parts[9] = Váha (E)
-                // parts[11] = Metre (F)
-
-                const idDrziaka = parts[1] || "---";
-                const material  = parts[5] || "---";
-                const hexColor  = (parts[7] || "00f2ff").trim();
-                const vahaRaw   = parts[9] || "0";
-                const metreRaw  = parts[11] || "0";
-
-                console.log("NATVRDO NAČÍTANÉ:", {vahaRaw, metreRaw});
-
-                const vaha = parseFloat(vahaRaw.replace(',', '.'));
-                const finalHex = hexColor.startsWith('#') ? hexColor : '#' + hexColor;
-
-                // UPDATE WEBU
-                document.getElementById('weight-val').innerText = Math.round(vaha);
-                document.getElementById('mat-label').innerText = material;
-                document.getElementById('data-hex').innerText = finalHex;
-                document.getElementById('data-len').innerText = metreRaw; // TU UŽ BUDE 266,70
-                document.getElementById('data-id').innerText = idDrziaka;
-
-                // Farby a bar (nech to svieti!)
-                document.documentElement.style.setProperty('--neon-cyan', finalHex);
-                const percent = Math.min(Math.max((vaha / 1000) * 100, 0), 100);
-                const activeSegments = Math.round((percent / 100) * 20);
-                const segments = document.querySelectorAll('.segment');
-                segments.forEach((seg, index) => {
-                    if (index < activeSegments) {
-                        seg.classList.add('on');
-                        seg.style.backgroundImage = `linear-gradient(135deg, var(--neon-cyan) ${100-percent}%, #fff31c 100%)`;
-                    } else {
-                        seg.classList.remove('on');
-                        seg.style.backgroundImage = '';
-                    }
-                });
-
-            } catch (e) { console.error("Chyba:", e); }
+    try {
+        const response = await fetch(csvUrl + "&t=" + new Date().getTime());
+        const text = await response.text();
+        const allRows = text.trim().split(/\r?\n/);
+        
+        // Nájdi posledný riadok s dátami (preskoč prázdne)
+        let lastRowRaw = "";
+        for (let i = allRows.length - 1; i >= 0; i--) {
+            if (allRows[i].length > 5 && !allRows[i].includes('Váha')) {
+                lastRowRaw = allRows[i];
+                break;
+            }
         }
+
+        if (!lastRowRaw) return;
+
+        // 1. OŠETRENIE: Ak sú v riadku úvodzovky s čiarkou (napr. "266,70"), 
+        // dočasne tú čiarku zmeníme na bodku, aby sme mohli riadok bezpečne rozdeliť.
+        let cleanRow = lastRowRaw.replace(/"([^"]*)"/g, (match, p1) => p1.replace(',', '.'));
+        
+        // 2. ROZDELENIE: Teraz už môžeme bezpečne deliť čiarkou
+        const cols = cleanRow.split(',').map(item => item.trim());
+
+        console.log("DÁTA PO OČISTE:", cols);
+
+        // MAPOVANIE (A=0, B=1, C=2, D=3, E=4, F=5)
+        const idDrziaka = cols[0] || "---";
+        const material  = cols[2] || "---";
+        const hexColor  = (cols[3] || "00f2ff").replace('#', '');
+        const vahaRaw   = cols[4] || "0";
+        const metreRaw  = cols[5] || "0";
+
+        const vaha = parseFloat(vahaRaw);
+        const finalHex = '#' + hexColor;
+
+        // UPDATE UI
+        document.getElementById('weight-val').innerText = Math.round(vaha) || 0;
+        document.getElementById('mat-label').innerText = material;
+        document.getElementById('data-hex').innerText = finalHex;
+        document.getElementById('data-len').innerText = metreRaw; 
+        document.getElementById('data-id').innerText = idDrziaka;
+
+        // Vizualizácia
+        document.documentElement.style.setProperty('--neon-cyan', finalHex);
+        const percent = Math.min(Math.max((vaha / 1000) * 100, 0), 100);
+        const activeSegments = Math.round((percent / 100) * 20);
+        const segments = document.querySelectorAll('.segment');
+        segments.forEach((seg, index) => {
+            if (index < activeSegments) {
+                seg.classList.add('on');
+                seg.style.backgroundImage = `linear-gradient(135deg, var(--neon-cyan) ${100-percent}%, #fff31c 100%)`;
+            } else {
+                seg.classList.remove('on');
+                seg.style.backgroundImage = '';
+            }
+        });
+
+    } catch (e) { console.error("Chyba:", e); }
+}
 
         if (!localStorage.getItem('myCsvUrl')) { setTimeout(resetLink, 500); }
         setInterval(updateData, 15000); updateData();
