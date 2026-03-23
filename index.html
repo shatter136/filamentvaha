@@ -5,19 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Filament Dashboard Fusion</title>
     <style>
-        /* RETRO-FUTURISTICKÉ NEÓNOVÉ FARBY */
         :root {
             --bg-color: #050505;
             --neon-cyan: #00f2ff;
             --neon-blue: #0080ff;
             --neon-yellow: #fff31c;
-            --neon-magenta: #ff00ff;
             --segment-off: #111;
         }
-
         body {
             background-color: var(--bg-color);
-            color: #fff; /* Všetky texty sú biele pre jas */
+            color: #fff;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             flex-direction: column;
@@ -27,95 +24,35 @@
             margin: 0;
             text-transform: uppercase;
         }
-
         .dashboard {
             border: 6px solid var(--neon-blue);
             padding: 50px;
             box-shadow: 0 0 30px var(--neon-blue);
-            background: none; /* Žiadne ponuré pozadie, pláva na čiernom */
+            background: none;
             text-align: center;
             min-width: 350px;
-            position: relative;
         }
-
-        /* SILNÝ GLOW EFEKT PRE NADPIS */
         .glitch-title {
             font-size: 1.1rem;
-            color: #fff;
             margin-bottom: 25px;
             border-bottom: 2px solid var(--neon-cyan);
             padding-bottom: 8px;
             letter-spacing: 3px;
-            text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
         }
-
-        .bar-container {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 30px;
-            justify-content: center;
-        }
-
-        .segment {
-            width: 14px;
-            height: 40px;
-            background-color: var(--segment-off);
-            border: 1px solid #222;
-            transition: all 0.2s ease-in-out;
-        }
-
-        /* DYNAMICKÝ GRADIENT PRE ZAPNUTÉ SEGMENTY */
-        .segment.on {
-            /* Plynulý prechod z tyrkysovej do neónovo-žltej */
+        .bar-container { display: flex; gap: 6px; margin-bottom: 30px; justify-content: center; }
+        .segment { width: 14px; height: 40px; background-color: var(--segment-off); border: 1px solid #222; }
+        .segment.on { 
             background-image: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-yellow) 100%);
-            box-shadow: 0 0 15px var(--neon-cyan), 0 0 25px var(--neon-yellow);
+            box-shadow: 0 0 15px var(--neon-cyan);
         }
-
-        .stats {
-            font-size: 4rem;
-            font-weight: bold;
-            color: #fff;
-            margin: 15px 0;
-        }
-
-        /* JASNÝ A ŽIARIVÝ VÁHA TEXT */
-        #weight-val {
-            color: var(--neon-yellow);
-            text-shadow: 0 0 15px var(--neon-yellow), 0 0 30px var(--neon-yellow);
-        }
-
-        #mat-label {
-            font-size: 1.3rem;
-            color: #fff;
-            margin-bottom: 25px;
-            display: block;
-        }
-
-        .data-grid {
-            margin-top: 25px;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            text-align: left;
-            border-top: 2px solid var(--neon-cyan);
-            padding-top: 20px;
-        }
-
-        .data-item { font-size: 0.9rem; color: #fff; }
+        .stats { font-size: 4rem; font-weight: bold; margin: 15px 0; }
+        #weight-val { color: var(--neon-yellow); text-shadow: 0 0 15px var(--neon-yellow); }
+        #mat-label { font-size: 1.3rem; margin-bottom: 25px; display: block; }
+        .data-grid { margin-top: 25px; display: grid; gap: 10px; text-align: left; border-top: 2px solid var(--neon-cyan); padding-top: 20px; }
+        .data-item { font-size: 0.9rem; }
         .data-label { color: var(--neon-cyan); margin-right: 12px; font-weight: bold; }
-        .data-value { color: #fff; font-weight: normal; }
-
-        button {
-            margin-top: 30px;
-            background: none;
-            border: 2px solid var(--neon-magenta);
-            color: var(--neon-magenta);
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 0.7rem;
-            padding: 5px 10px;
-            text-transform: uppercase;
-        }
+        button { margin-top: 30px; background: none; border: 2px solid #ff00ff; color: #ff00ff; cursor: pointer; padding: 5px 10px; }
     </style>
 </head>
 <body>
@@ -123,19 +60,18 @@
         <div class="glitch-title">SMART SPOOL SYSTEM</div>
         <div class="bar-container" id="pixel-bar"></div>
         <div class="main-display">
-            <div class="stats"><span id="weight-val">0</span>g</div>
-            <span id="mat-label">ČAKÁM NA LINK...</span>
+            <div class="stats"><span id="weight-val">0</span>G</div>
+            <span id="mat-label">NAČÍTAM...</span>
         </div>
         <div class="data-grid">
-            <div class="data-item"><span class="data-label">HEX:</span><span id="data-hex" class="data-value">---</span></div>
-            <div class="data-item"><span class="data-label">LENGTH:</span><span id="data-len" class="data-value">---</span> m</div>
-            <div class="data-item"><span class="data-label">ID:</span><span id="data-id" class="data-value">---</span></div>
+            <div class="data-item"><span class="data-label">HEX:</span><span id="data-hex">---</span></div>
+            <div class="data-item"><span class="data-label">LENGTH:</span><span id="data-len">---</span> M</div>
+            <div class="data-item"><span class="data-label">ID:</span><span id="data-id">---</span></div>
         </div>
         <button onclick="resetLink()">RENASTAVIŤ LINK</button>
     </div>
 
     <script>
-        // ... (Zvyšok skriptu pre načítanie dát ostáva rovnaký, len sme ho prečistili)
         const barContainer = document.getElementById('pixel-bar');
         for (let i = 0; i < 20; i++) {
             const seg = document.createElement('div');
@@ -148,75 +84,62 @@
             if (newLink) { localStorage.setItem('myCsvUrl', newLink); location.reload(); }
         }
 
-       async function updateData() {
-    const csvUrl = localStorage.getItem('myCsvUrl');
-    if (!csvUrl) return;
+        async function updateData() {
+            const csvUrl = localStorage.getItem('myCsvUrl');
+            if (!csvUrl) return;
 
-    try {
-        const response = await fetch(csvUrl + "&t=" + new Date().getTime());
-        const text = await response.text();
-        const allRows = text.trim().split(/\r?\n/);
-        
-        let lastRowRaw = "";
-        for (let i = allRows.length - 1; i >= 0; i--) {
-            // Hľadáme riadok, ktorý obsahuje aspoň niečo o váhe alebo materiáli
-            if (allRows[i].length > 10 && !allRows[i].includes('Váha (g)')) {
-                lastRowRaw = allRows[i];
-                break;
-            }
+            try {
+                const response = await fetch(csvUrl + "&t=" + new Date().getTime());
+                const text = await response.text();
+                const allRows = text.trim().split(/\r?\n/);
+                
+                // Zoberieme úplne posledný riadok
+                const lastRowRaw = allRows[allRows.length - 1];
+                
+                // Ošetrenie slovenských čiarok v číslach (napr. "795,40" -> 795.40)
+                let cleanRow = lastRowRaw.replace(/"([^"]*)"/g, (match, p1) => p1.replace(',', '.'));
+                const cols = cleanRow.split(',').map(item => item.replace(/"/g, '').trim());
+
+                console.log("Dáta z tabuľky:", cols);
+
+                // MAPOVANIE PRESNE PODĽA OBRÁZKA:
+                const idDrziaka = cols[0] || "---"; // Stĺpec A
+                const material  = cols[2] || "---"; // Stĺpec C
+                const hexRaw    = cols[3] || "00f2ff"; // Stĺpec D
+                const vahaRaw   = cols[4] || "0";   // Stĺpec E
+                const metreRaw  = cols[5] || "---"; // Stĺpec F
+
+                const vaha = parseFloat(vahaRaw);
+                const hex = hexRaw.startsWith('#') ? hexRaw : '#' + hexRaw;
+
+                // UPDATE UI
+                document.getElementById('weight-val').innerText = Math.round(vaha);
+                document.getElementById('mat-label').innerText = material;
+                document.getElementById('data-hex').innerText = hex.toUpperCase();
+                document.getElementById('data-len').innerText = metreRaw;
+                document.getElementById('data-id').innerText = idDrziaka;
+
+                // Farby a Bar
+                document.documentElement.style.setProperty('--neon-cyan', hex);
+                const percent = Math.min(Math.max((vaha / 1000) * 100, 0), 100);
+                const activeSegments = Math.round((percent / 100) * 20);
+                const segments = document.querySelectorAll('.segment');
+                segments.forEach((seg, index) => {
+                    if (index < activeSegments) {
+                        seg.classList.add('on');
+                        seg.style.boxShadow = `0 0 15px ${hex}`;
+                    } else {
+                        seg.classList.remove('on');
+                        seg.style.boxShadow = '';
+                    }
+                });
+
+            } catch (e) { console.error("Chyba:", e); }
         }
 
-        if (!lastRowRaw) return;
-
-        // Očista od úvodzoviek a oprava čiarky v číslach
-        let cleanRow = lastRowRaw.replace(/"([^"]*)"/g, (match, p1) => p1.replace(',', '.'));
-        let cols = cleanRow.split(',').map(item => item.replace(/"/g, '').trim()).filter(item => item !== "");
-
-        console.log("REÁLNE NÁJDENÉ DÁTA:", cols);
-
-        // Dynamické priradenie - kód sa pozrie, čo v tom stĺpci je
-        let id = "---", mat = "---", hex = "00f2ff", vahaVal = 0, metre = "---";
-
-        cols.forEach(item => {
-            if (item.includes('SPOOL')) id = item;
-            else if (item.startsWith('#') || (item.length === 6 && /^[0-9A-Fa-f]+$/.test(item))) hex = item.startsWith('#') ? item : '#' + item;
-            else if (item.includes('PETG') || item.includes('PLA') || item.includes('ASA')) mat = item;
-            else if (!isNaN(parseFloat(item.replace(',', '.')))) {
-                let num = parseFloat(item.replace(',', '.'));
-                if (num > 300) vahaVal = num; // Predpokladáme, že váha je to veľké číslo
-                else if (num > 0 && num < 300) metre = item; // Menšie číslo sú metre
-            }
-        });
-
-        // UPDATE UI
-        document.getElementById('weight-val').innerText = Math.round(vahaVal);
-        document.getElementById('mat-label').innerText = mat;
-        document.getElementById('data-hex').innerText = hex;
-        document.getElementById('data-len').innerText = metre;
-        document.getElementById('data-id').innerText = id;
-
-        // Vizualizácia
-        document.documentElement.style.setProperty('--neon-cyan', hex);
-        const percent = Math.min(Math.max((vahaVal / 1000) * 100, 0), 100);
-        const activeSegments = Math.round((percent / 100) * 20);
-        const segments = document.querySelectorAll('.segment');
-        segments.forEach((seg, index) => {
-            if (index < activeSegments) {
-                seg.classList.add('on');
-                seg.style.backgroundImage = `linear-gradient(135deg, var(--neon-cyan) ${100-percent}%, #fff31c 100%)`;
-                seg.style.boxShadow = `0 0 15px ${hex}`;
-            } else {
-                seg.classList.remove('on');
-                seg.style.backgroundImage = '';
-                seg.style.boxShadow = '';
-            }
-        });
-
-    } catch (e) { console.error("Chyba:", e); }
-}
-
         if (!localStorage.getItem('myCsvUrl')) { setTimeout(resetLink, 500); }
-        setInterval(updateData, 15000); updateData();
+        setInterval(updateData, 15000);
+        updateData();
     </script>
 </body>
 </html>
