@@ -43,10 +43,20 @@
 }
 
         .title {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            letter-spacing: 4px;
-        }
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    letter-spacing: 4px;
+    color: var(--neon-blue);
+    /* Vrstvený glow: 
+       1. úzka ostrá žiara, 
+       2. stredná rozptýlená, 
+       3. široká atmosférická žiara */
+    text-shadow: 
+        0 0 5px var(--neon-blue),
+        0 0 10px var(--neon-blue),
+        0 0 20px rgba(0, 212, 255, 0.7),
+        0 0 40px rgba(0, 212, 255, 0.4);
+}
 
         /* Grafický ukazovateľ (Bar chart) */
        .bar-container {
