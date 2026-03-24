@@ -25,19 +25,20 @@
         }
 
         #dashboard {
-            background-color: var(--bg-dark);
-            width: 450px;
-            height: 350px;
-            border: 4px solid var(--neon-blue);
-            box-shadow: 0 0 15px var(--neon-blue);
-            padding: 20px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-        }
+    background-color: var(--bg-dark);
+    width: 450px;
+    height: 380px; /* Trochu sme ho zvýšili, aby bolo miesto */
+    border: 4px solid var(--neon-blue);
+    box-shadow: 0 0 20px var(--neon-blue), inset 0 0 10px var(--neon-blue); /* Vonkajší aj vnútorný glow */
+    padding: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--neon-blue);
+    text-shadow: 0 0 8px var(--neon-blue); /* Glow pre všetky tyrkysové texty */
+    text-transform: uppercase;
+}
 
         .title {
             font-size: 1.2rem;
@@ -47,18 +48,19 @@
 
         /* Grafický ukazovateľ (Bar chart) */
         .bar-container {
-            display: flex;
-            align-items: flex-end;
-            gap: 3px;
-            height: 40px;
-            margin-bottom: 5px;
-        }
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 30px; /* Znížená výška stĺpcov */
+    margin-top: 25px; /* Odstup od nadpisu FILAMENT VÁHA */
+    margin-bottom: 5px;
+}
 
         .bar {
-            width: 12px;
-            background: rgba(240, 240, 0, 0.2);
-            box-shadow: 0 0 2px var(--neon-yellow);
-        }
+    width: 12px;
+    background: rgba(240, 240, 0, 0.1);
+    border: 1px solid rgba(240, 240, 0, 0.2);
+}
 
         .bar.active {
             background: var(--neon-yellow);
@@ -102,22 +104,23 @@
             text-align: center;
         }
 
-        .odometer {
-            display: flex;
-            background: rgba(240, 240, 0, 0.1);
-            border: 2px solid var(--neon-yellow);
-            padding: 5px;
-            gap: 2px;
-            box-shadow: inset 0 0 10px var(--neon-yellow);
-        }
+       .odometer {
+    display: flex;
+    background: rgba(240, 240, 0, 0.05);
+    border: 2px solid var(--neon-yellow);
+    padding: 5px;
+    gap: 2px;
+    box-shadow: 0 0 15px var(--neon-yellow), inset 0 0 5px var(--neon-yellow); /* Poriadny žltý glow */
+}
 
         .digit {
-            background: var(--neon-yellow);
-            color: black;
-            padding: 5px 8px;
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
+    background: var(--neon-yellow);
+    color: black;
+    padding: 5px 8px;
+    font-weight: bold;
+    font-size: 1.5rem;
+    box-shadow: 0 0 5px var(--neon-yellow); /* Glow pre jednotlivé číslice */
+}
 
         /* Ikonky */
         .warning {
