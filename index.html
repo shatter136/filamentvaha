@@ -113,6 +113,14 @@
                 barContainer.appendChild(seg);
             }
 
+            // 5. ALERT SYSTÉM (Blikajúci výkričník)
+            const alertIcon = document.getElementById('alert');
+            if (data.weight < 50) { 
+                alertIcon.style.display = 'block'; // Ukáže sa, ak je pod 50g
+            } else {
+                alertIcon.style.display = 'none';  // Inak je schovaný
+            }
+
             console.log("Dashboard úspešne prekreslený!");
         } catch (err) {
             console.error("Chyba pri kreslení UI:", err);
