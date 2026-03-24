@@ -194,13 +194,16 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjdk02orYyJe-XXkFU3Rda1v8_UUbFWk2kn4HmaEb7KzEA_v_hxfCzvYeydayE48Lwjw/exec";
 
     // Vytvorenie grafických stĺpcov (0-100%)
-    const barsContainer = document.getElementById('bars');
-    for (let i = 0; i < 20; i++) {
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        bar.style.height = (10 + i * 5) + 'px'; // stupňovanie výšky
-        barsContainer.appendChild(bar);
-    }
+   // Vygenerovanie nižších paličiek
+const barsContainer = document.getElementById('bars');
+barsContainer.innerHTML = ''; // Vyčisti ak tam niečo bolo
+for (let i = 0; i < 20; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    // Výška bude od 5px po 25px (predtým bola až do 110px, preto to lietalo do nadpisu)
+    bar.style.height = (5 + i * 1) + 'px'; 
+    barsContainer.appendChild(bar);
+}
 
     function updateDashboard(data) {
         // Váha a materiál
