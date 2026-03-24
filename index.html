@@ -2,191 +2,86 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <title>Prusa Filament Dashboard</title>
+    <title>Filament Dashboard</title>
     <style>
-        body {
-            background-color: #010105;
-            color: #00ffff;
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-transform: uppercase;
-        }
-
-        .container {
-            width: 600px;
-            height: 450px;
-            border: 4px solid #1a75ff;
-            box-shadow: 0 0 25px #0044cc, inset 0 0 15px #002266;
-            position: relative;
-            background: #010108;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .header {
-            color: #44ffff;
-            letter-spacing: 6px;
-            font-weight: bold;
-            margin-top: 25px;
-            font-size: 22px;
-            text-shadow: 0 0 10px #00ffff;
-        }
-
-        /* Progress Bar - Brutal Glow */
-        .bar-wrap {
-            display: flex;
-            align-items: flex-end;
-            gap: 5px;
-            margin-top: 25px;
-            height: 80px;
-        }
+        body { background-color: #010105; color: #00ffff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-transform: uppercase; }
+        .container { width: 600px; height: 450px; border: 4px solid #1a75ff; box-shadow: 0 0 30px #0044cc, inset 0 0 20px #002266; position: relative; background: #010108; display: flex; flex-direction: column; align-items: center; }
+        .header { color: #44ffff; letter-spacing: 6px; font-weight: bold; margin-top: 25px; font-size: 22px; text-shadow: 0 0 15px #00ffff; }
+        
+        /* Progress Bar s brutal glow */
+        .bar-wrap { display: flex; align-items: flex-end; gap: 5px; margin-top: 25px; height: 80px; }
         .seg { width: 18px; background: #111; border: 1px solid #222; }
-        .seg.on { 
-            background: #d4ff00; 
-            box-shadow: 0 0 12px #d4ff00, 0 0 25px #88aa00; 
-            border-color: #fff; 
-        }
+        .seg.on { background: #d4ff00; box-shadow: 0 0 15px #d4ff00, 0 0 30px #88aa00; border-color: #fff; }
 
-        .scale-labels {
-            display: flex;
-            justify-content: space-between;
-            width: 85%;
-            font-size: 14px;
-            color: #44ffff;
-            margin-top: 8px;
-            text-shadow: 0 0 5px #00ffff;
-        }
+        .scale-labels { display: flex; justify-content: space-between; width: 85%; font-size: 14px; color: #44ffff; margin-top: 8px; text-shadow: 0 0 5px #00ffff; }
 
-        /* Digitálne SVG segmenty */
+        /* Digitálne segmenty */
         .weight-box { display: flex; gap: 10px; margin-top: 25px; }
         .digit-svg { width: 65px; height: 110px; fill: #111; }
-        .digit-svg path.on { 
-            fill: #ffff00; 
-            filter: drop-shadow(0 0 8px #ffff00) drop-shadow(0 0 15px #ffaa00); 
-        }
+        .digit-svg path.on { fill: #ffff00; filter: drop-shadow(0 0 10px #ffff00) drop-shadow(0 0 20px #ffaa00); }
         
-        .unit-g { color: #44ffff; font-size: 24px; margin-top: 5px; text-shadow: 0 0 10px #00ffff; }
-
-        /* Popisy po stranách */
-        .label-left { position: absolute; top: 250px; left: 35px; font-size: 14px; width: 140px; color: #40ffff; text-shadow: 0 0 8px #40ffff; }
-        .label-right { position: absolute; top: 260px; right: 35px; color: #ffff00; font-size: 18px; text-shadow: 0 0 12px #ffff00; font-weight: bold; }
+        .unit-g { color: #44ffff; font-size: 24px; margin-top: 5px; text-shadow: 0 0 12px #00ffff; }
+        .label-left { position: absolute; top: 250px; left: 35px; font-size: 14px; color: #40ffff; text-shadow: 0 0 8px #40ffff; }
+        .label-right { position: absolute; top: 260px; right: 35px; color: #ffff00; font-size: 18px; text-shadow: 0 0 15px #ffff00; font-weight: bold; }
 
         /* Odometer */
         .odo-label { margin-top: 25px; font-size: 14px; color: #44ffff; text-shadow: 0 0 5px #00ffff; }
-        .odo-box { border: 2px solid #ffff00; padding: 5px; display: flex; gap: 4px; background: #000; box-shadow: 0 0 15px rgba(255,255,0,0.2); }
-        .odo-digit { width: 38px; height: 55px; background: #0a0a0a; border: 1px solid #333; color: #ffff00; font-size: 40px; text-align: center; font-weight: bold; line-height: 55px; text-shadow: 0 0 10px #ffff00; }
+        .odo-box { border: 2px solid #ffff00; padding: 5px; display: flex; gap: 4px; background: #000; box-shadow: 0 0 20px rgba(255,255,0,0.3); }
+        .odo-digit { width: 38px; height: 55px; background: #0a0a0a; border: 1px solid #333; color: #ffff00; font-size: 40px; text-align: center; font-weight: bold; line-height: 55px; text-shadow: 0 0 12px #ffff00; }
 
-        /* Výstraha */
-        .warning-icon {
-            position: absolute;
-            bottom: 45px;
-            left: 55px;
-            font-size: 75px;
-            color: #ff0000;
-            display: none;
-            text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
-            animation: blink 0.7s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.1; transform: scale(0.9); }
-        }
+        /* Vykričník */
+        .warning-icon { position: absolute; bottom: 45px; left: 55px; font-size: 80px; color: #ff0000; display: none; text-shadow: 0 0 25px #ff0000, 0 0 50px #ff0000; animation: blink 0.7s infinite; z-index: 100; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
-
     <div class="warning-icon" id="alert">!</div>
-    
     <div class="container">
         <div class="header">FILAMENT VÁHA</div>
-        
         <div class="bar-wrap" id="bar"></div>
-        <div class="scale-labels">
-            <span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span>
-        </div>
-
+        <div class="scale-labels"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span></div>
         <div class="label-left" id="material">---</div>
         <div class="weight-box" id="weight"></div>
         <div class="unit-g">G</div>
-
         <div class="label-right" id="spoolId">---</div>
-
         <div class="odo-label">TOTAL LENGTH</div>
         <div style="display: flex; align-items: center; gap: 12px;">
             <div class="odo-box" id="odo"></div>
-            <div style="color: #1a75ff; font-size: 28px; font-weight: bold; text-shadow: 0 0 10px #1a75ff;">M</div>
+            <div style="color: #1a75ff; font-size: 28px; font-weight: bold; text-shadow: 0 0 15px #1a75ff;">M</div>
         </div>
     </div>
 
 <script>
-    // TU VLOŽ SVOJU NOVÚ URL Z DEPLOYMENTU
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmn0jectE7dtfZ9wmY33kqAuF6lJOMoLm3YXIj84MH6H6nkB3SRlmTmCni936FFEMW/exec";
-
-    const segments = {
-        '0': [1,1,1,0,1,1,1], '1': [0,0,1,0,0,1,0], '2': [1,0,1,1,1,0,1], '3': [1,0,1,1,0,1,1],
-        '4': [0,1,1,1,0,1,0], '5': [1,1,0,1,0,1,1], '6': [1,1,0,1,1,1,1], '7': [1,0,1,0,0,1,0],
-        '8': [1,1,1,1,1,1,1], '9': [1,1,1,1,0,1,1], ' ': [0,0,0,0,0,0,0]
-    };
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-x3FlaQfkHElsIvoTm5eQV0NgW7phr7hhLB9DvxCg4w2jNc6xgOVMtc8cJxQNJDalCg/exec";
+    const segments = { '0': [1,1,1,0,1,1,1], '1': [0,0,1,0,0,1,0], '2': [1,0,1,1,1,0,1], '3': [1,0,1,1,0,1,1], '4': [0,1,1,1,0,1,0], '5': [1,1,0,1,0,1,1], '6': [1,1,0,1,1,1,1], '7': [1,0,1,0,0,1,0], '8': [1,1,1,1,1,1,1], '9': [1,1,1,1,0,1,1], ' ': [0,0,0,0,0,0,0] };
 
     function createDigitSVG(num) {
         const active = segments[num] || segments[' '];
         return `<svg viewBox="0 0 60 100" class="digit-svg">
-            <path class="${active[0]?'on':''}" d="M10,5 L50,5 L45,15 L15,15 Z" />
-            <path class="${active[1]?'on':''}" d="M5,10 L5,45 L15,40 L15,15 Z" />
-            <path class="${active[2]?'on':''}" d="M55,10 L55,45 L45,40 L45,15 Z" />
-            <path class="${active[3]?'on':''}" d="M10,45 L50,45 L45,55 L15,55 Z" />
-            <path class="${active[4]?'on':''}" d="M5,55 L5,90 L15,85 L15,60 Z" />
-            <path class="${active[5]?'on':''}" d="M55,55 L55,90 L45,85 L45,60 Z" />
-            <path class="${active[6]?'on':''}" d="M10,85 L50,85 L45,95 L15,95 Z" />
+            <path class="${active[0]?'on':''}" d="M10,5 L50,5 L45,15 L15,15 Z" /><path class="${active[1]?'on':''}" d="M5,10 L5,45 L15,40 L15,15 Z" /><path class="${active[2]?'on':''}" d="M55,10 L55,45 L45,40 L45,15 Z" /><path class="${active[3]?'on':''}" d="M10,45 L50,45 L45,55 L15,55 Z" /><path class="${active[4]?'on':''}" d="M5,55 L5,90 L15,85 L15,60 Z" /><path class="${active[5]?'on':''}" d="M55,55 L55,90 L45,85 L45,60 Z" /><path class="${active[6]?'on':''}" d="M10,85 L50,85 L45,95 L15,95 Z" />
         </svg>`;
     }
 
-    function updateDashboard() {
-        const oldScript = document.getElementById('jsonp-script');
-        if (oldScript) oldScript.remove();
-
-        const script = document.createElement('script');
-        script.id = 'jsonp-script';
-        script.src = `${SCRIPT_URL}?action=dashboard&callback=handleData&t=${Date.now()}`;
-        document.head.appendChild(script);
-    }
-
-    // Globálna funkcia pre spracovanie dát
     window.handleData = function(d) {
-        if (!d || d.error) return;
-
-        // Váha
-        const wVal = Math.round(d.weight);
-        const wStr = wVal.toString().padStart(3, ' ');
-        document.getElementById('weight').innerHTML = wStr.split('').map(createDigitSVG).join('');
-        
-        // Bar
+        const wVal = Math.round(d.weight) || 0;
+        document.getElementById('weight').innerHTML = wVal.toString().padStart(3, ' ').split('').map(createDigitSVG).join('');
         const p = Math.min((wVal / 1000) * 100, 100);
-        document.getElementById('bar').innerHTML = Array.from({length:20}, (_,i) => 
-            `<div class="seg ${i < p/5 ? 'on' : ''}" style="height:${15+(i*3.5)}px"></div>`).join('');
-
-        // Odo
-        const lVal = Math.round(d.length);
-        const lStr = lVal.toString().padStart(6, '0');
-        document.getElementById('odo').innerHTML = lStr.split('').map(n => `<div class="odo-digit">${n}</div>`).join('');
-
+        document.getElementById('bar').innerHTML = Array.from({length:20}, (_,i) => `<div class="seg ${i < p/5 ? 'on' : ''}" style="height:${15+(i*3.5)}px"></div>`).join('');
+        const lVal = Math.round(d.length) || 0;
+        document.getElementById('odo').innerHTML = lStr = lVal.toString().padStart(6, '0').split('').map(n => `<div class="odo-digit">${n}</div>`).join('');
         document.getElementById('material').innerText = d.material;
         document.getElementById('spoolId').innerText = d.id;
-
-        // Výstraha
-        const alertElement = document.getElementById('alert');
-        alertElement.style.display = (lVal < 10 || wVal < 50) ? 'block' : 'none';
+        document.getElementById('alert').style.display = (lVal < 10 || wVal < 50) ? 'block' : 'none';
     };
 
-    updateDashboard();
-    setInterval(updateDashboard, 100000); // 10 sekúnd stačí
+    function update() {
+        const s = document.createElement('script');
+        s.src = `${SCRIPT_URL}?action=dashboard&callback=handleData&t=${Date.now()}`;
+        document.head.appendChild(s);
+        setTimeout(() => s.remove(), 1000);
+    }
+    update();
+    setInterval(update, 10000);
 </script>
-
 </body>
 </html>
