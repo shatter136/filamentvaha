@@ -2,16 +2,15 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PRUSA3S FILAMENT</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Michroma&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #05060f;
+            --bg-color: #020205;
             --cyan: #00f2ff;
-            --blue-glow: #007fff;
             --yellow: #f4d03f;
-            --yellow-glow: rgba(244, 208, 63, 0.6);
+            --glow-cyan: 0 0 15px #00f2ff, 0 0 30px rgba(0, 242, 255, 0.5);
+            --glow-yellow: 0 0 20px #f4d03f, 0 0 40px rgba(244, 208, 63, 0.6);
         }
 
         body {
@@ -27,35 +26,34 @@
         }
 
         .dashboard {
-            width: 600px;
-            padding: 40px;
-            border: 3px solid var(--blue-glow);
-            box-shadow: inset 0 0 20px rgba(0, 127, 255, 0.3), 0 0 40px rgba(0, 0, 0, 1);
+            width: 650px;
+            padding: 50px;
+            border: 4px solid var(--cyan);
+            box-shadow: 0 0 20px var(--cyan), inset 0 0 20px var(--cyan);
             background: black;
             position: relative;
         }
 
         .title {
             text-align: center;
-            font-size: 1.2rem;
-            letter-spacing: 6px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px var(--cyan);
+            font-size: 1.4rem;
+            letter-spacing: 8px;
+            margin-bottom: 30px;
+            text-shadow: var(--glow-cyan);
         }
 
-        /* TACHOMETER PANEL */
+        /* TACHOMETER S GRADIENTOM */
         .tachometer-container {
-            border-bottom: 2px solid var(--blue-glow);
-            padding-bottom: 10px;
-            margin-bottom: 30px;
+            border-bottom: 2px solid var(--cyan);
+            padding-bottom: 15px;
+            margin-bottom: 40px;
         }
 
         .bar-wrapper {
             display: flex;
             align-items: flex-end;
-            gap: 4px;
-            height: 60px;
-            margin-bottom: 5px;
+            gap: 5px;
+            height: 70px;
         }
 
         .segment {
@@ -64,102 +62,68 @@
             transition: 0.3s;
         }
 
+        /* Dynamické žiarenie nastavené cez JS */
         .segment.on {
-            background-color: var(--yellow);
-            box-shadow: 0 0 15px var(--yellow-glow);
+            box-shadow: var(--glow-yellow);
         }
 
         .scale {
             display: flex;
             justify-content: space-between;
-            font-size: 0.7rem;
-            color: var(--cyan);
-            padding: 0 2px;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            text-shadow: var(--glow-cyan);
         }
 
-        /* MAIN WEIGHT DISPLAY */
+        /* HLAVNÝ SEGMENTOVÝ DISPLEJ (CSS SIMULÁCIA) */
         .main-display {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            position: relative;
             margin: 40px 0;
         }
 
-        .side-label-left {
-            position: absolute;
-            left: 0;
-            font-size: 0.7rem;
-            color: var(--cyan);
-        }
-
-        .side-label-right {
-            position: absolute;
-            right: 0;
-            text-align: right;
-            font-size: 0.7rem;
-        }
-
-        .weight-value {
-            font-family: 'Michroma', sans-serif;
-            font-size: 8rem;
+        #weight-val {
+            font-size: 9rem;
             color: var(--yellow);
-            text-shadow: 0 0 20px var(--yellow-glow);
-            line-height: 1;
-            letter-spacing: -5px;
+            text-shadow: var(--glow-yellow);
+            font-weight: 900;
+            letter-spacing: -2px;
         }
 
-        .small-g {
-            display: block;
-            text-align: center;
-            font-size: 1.2rem;
-            margin-top: -10px;
-            color: var(--cyan);
-        }
+        .side-info { font-size: 0.8rem; line-height: 2; }
+        .yellow-text { color: var(--yellow); text-shadow: var(--glow-yellow); }
+        .cyan-text { color: var(--cyan); text-shadow: var(--glow-cyan); }
 
         /* ODOMETER */
-        .total-length-section {
-            text-align: center;
+        .odometer-container {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
             margin-top: 20px;
         }
 
-        .odometer-label {
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .odometer-container {
-            display: inline-flex;
-            border: 2px solid var(--yellow);
-            padding: 5px;
-            background: #111;
-            box-shadow: 0 0 10px var(--yellow-glow);
-        }
-
         .odo-digit {
-            font-size: 1.8rem;
+            border: 2px solid var(--yellow);
+            padding: 5px 12px;
+            font-size: 2rem;
             color: var(--yellow);
-            padding: 0 5px;
-            border-right: 1px solid #333;
+            text-shadow: var(--glow-yellow);
+            box-shadow: inset 0 0 10px var(--yellow);
+            background: #0a0a0a;
         }
 
-        .unit-m {
-            font-size: 1.5rem;
-            margin-left: 10px;
-            align-self: center;
-        }
-
-        .btn-refresh {
+        button {
             display: block;
-            margin: 30px auto 0;
+            margin: 40px auto 0;
             background: none;
-            border: 1px solid #ff00ff;
+            border: 2px solid #ff00ff;
             color: #ff00ff;
-            padding: 5px 15px;
+            padding: 10px 20px;
             font-family: inherit;
-            font-size: 0.6rem;
             cursor: pointer;
+            text-shadow: 0 0 10px #ff00ff;
+            box-shadow: 0 0 10px #ff00ff;
         }
     </style>
 </head>
@@ -171,44 +135,38 @@
     <div class="tachometer-container">
         <div class="bar-wrapper" id="bar"></div>
         <div class="scale">
-            <span>0</span><span>10</span><span>20</span><span>30</span><span>40</span>
-            <span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span>
+            <span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100</span>
         </div>
     </div>
 
     <div class="main-display">
-        <div class="side-label-left" id="mat-label">PETG JET BLACK</div>
+        <div class="side-info cyan-text" id="mat-label">LOADING...</div>
         
-        <div class="weight-box">
-            <div class="weight-value" id="weight-val">000</div>
-            <div class="small-g">g</div>
+        <div style="text-align: center;">
+            <div id="weight-val">000</div>
+            <div class="cyan-text" style="font-size: 1.5rem; margin-top: -10px;">g</div>
         </div>
 
-        <div class="side-label-right">
-            <div style="color: var(--cyan)">LENGTH: <span id="data-len-raw">0</span> M</div>
-            <div style="color: var(--yellow)" id="data-id">SPOOL-VS</div>
-        </div>
-    </div>
-
-    <div class="total-length-section">
-        <span class="odometer-label">total length</span>
-        <div style="display: flex; justify-content: center; align-items: center;">
-            <div class="odometer-container" id="odometer">
-                </div>
-            <span class="unit-m">M</span>
+        <div class="side-info" style="text-align: right;">
+            <div class="cyan-text">LENGTH: <span id="data-len">0</span>M</div>
+            <div class="yellow-text" id="data-id">---</div>
         </div>
     </div>
 
-    <button class="btn-refresh" onclick="updateData()">FORCE REFRESH</button>
+    <div style="text-align: center;">
+        <div style="font-size: 0.7rem; margin-bottom: 10px;" class="cyan-text">TOTAL LENGTH</div>
+        <div class="odometer-container" id="odometer"></div>
+    </div>
+
+    <button onclick="updateData()">FORCE REFRESH</button>
 </div>
 
 <script>
     const FIXED_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxFZl_JAITJGkdodcTo1ZBF6Do-cjigonJjrTJUDsOG8AWZL9HAmUUWOAd9NkwIBMCYHtOqVTZ9KV7/pub?gid=233832092&single=true&output=csv";
 
-    // Inicializácia Baru (25 segmentov pre jemnejší krok)
+    // Vygeneruj segmenty
     const bar = document.getElementById('bar');
-    const segCount = 25;
-    for (let i = 0; i < segCount; i++) {
+    for (let i = 0; i < 30; i++) {
         const s = document.createElement('div');
         s.className = 'segment';
         s.style.height = (15 + (i * 1.8)) + 'px';
@@ -222,37 +180,44 @@
             const res = await fetch(FIXED_CSV_URL + "&t=" + new Date().getTime());
             const text = await res.text();
             const rows = text.trim().split(/\r?\n/);
-            const valid = rows.filter(r => r.split(',')[4] && r.split(',')[4].replace(/"/g,'').trim() !== "0");
-            
-            if (valid.length === 0) return;
-            const last = valid[valid.length - 1].split(',');
+            const last = rows[rows.length - 1].split(',');
 
-            const vaha = Math.round(parseFloat((last[4] || "0").replace(/"/g, '').replace(',', '.')));
-            const material = (last[2] || "---").replace(/"/g, '');
-            const len = (last[5] || "0").replace(/"/g, '');
-            const id = (last[0] || "---").replace(/"/g, '');
+            const vaha = Math.round(parseFloat(last[4].replace(/"/g,'').replace(',','.')));
+            const mat = last[2].replace(/"/g,'');
+            const len = last[5].replace(/"/g,'');
+            const id = last[0].replace(/"/g,'');
 
-            // Update UI
+            // Update Texty
             document.getElementById('weight-val').innerText = vaha;
-            document.getElementById('mat-label').innerText = material;
-            document.getElementById('data-len-raw').innerText = len;
+            document.getElementById('mat-label').innerText = mat;
+            document.getElementById('data-len').innerText = len;
             document.getElementById('data-id').innerText = id;
 
             // Update Odometer
-            const odoContainer = document.getElementById('odometer');
-            odoContainer.innerHTML = '';
-            const paddedLen = len.toString().padStart(6, '0');
-            for (char of paddedLen) {
+            const odo = document.getElementById('odometer');
+            odo.innerHTML = '';
+            len.toString().padStart(6, '0').split('').forEach(num => {
                 const d = document.createElement('div');
                 d.className = 'odo-digit';
-                d.innerText = char;
-                odoContainer.appendChild(d);
-            }
+                d.innerText = num;
+                odo.appendChild(d);
+            });
 
-            // Update Bar (predpoklad max 1000g)
-            const activeCount = Math.round((vaha / 1000) * segCount);
-            document.querySelectorAll('.segment').forEach((s, i) => {
-                s.classList.toggle('on', i < activeCount);
+            // Update Progress Bar + Glow
+            const percent = (vaha / 1000); // predpoklad 1kg
+            const segments = document.querySelectorAll('.segment');
+            segments.forEach((s, i) => {
+                if (i < percent * 30) {
+                    s.classList.add('on');
+                    // Miešanie farieb: čím viac vpravo, tým viac do žlta/tyrkysova
+                    const ratio = i / 30;
+                    s.style.backgroundColor = `rgb(${244 * ratio}, ${240}, ${255 * (1-ratio)})`;
+                    s.style.boxShadow = `0 0 20px rgba(0, 242, 255, ${0.5 + ratio})`;
+                } else {
+                    s.classList.remove('on');
+                    s.style.backgroundColor = '#111';
+                    s.style.boxShadow = 'none';
+                }
             });
 
         } catch (e) { console.error(e); }
@@ -261,6 +226,5 @@
     setInterval(updateData, 15000);
     updateData();
 </script>
-
 </body>
 </html>
