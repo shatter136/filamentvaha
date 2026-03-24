@@ -2,29 +2,27 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <title>Filament</title>
+    <title>Prusa Filament Dashboard</title>
     <style>
         body {
-            background-color: #02020a;
+            background-color: #010105;
             color: #00ffff;
-            font-family: 'Courier New', monospace;
+            font-family: 'Courier New', Courier, monospace;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
             text-transform: uppercase;
-            overflow: hidden;
         }
 
         .container {
             width: 600px;
             height: 450px;
             border: 4px solid #1a75ff;
-            /* Silný vonkajší glow rámu */
-            box-shadow: 0 0 20px #0044cc, inset 0 0 15px #002266;
+            box-shadow: 0 0 25px #0044cc, inset 0 0 15px #002266;
             position: relative;
-            background: #010105;
+            background: #010108;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -32,75 +30,72 @@
 
         .header {
             color: #44ffff;
-            letter-spacing: 5px;
+            letter-spacing: 6px;
             font-weight: bold;
             margin-top: 25px;
-            font-size: 20px;
+            font-size: 22px;
             text-shadow: 0 0 10px #00ffff;
         }
 
-        /* Progress Bar */
+        /* Progress Bar - Brutal Glow */
         .bar-wrap {
             display: flex;
             align-items: flex-end;
             gap: 5px;
-            margin-top: 20px;
+            margin-top: 25px;
             height: 80px;
         }
-        .seg { width: 18px; background: #111; border: 1px solid #222; transition: 0.3s; }
-        /* Brutálny žltý glow pre segmenty */
+        .seg { width: 18px; background: #111; border: 1px solid #222; }
         .seg.on { 
-            background: #e6ff00; 
-            box-shadow: 0 0 15px #e6ff00, 0 0 30px #88aa00; 
+            background: #d4ff00; 
+            box-shadow: 0 0 12px #d4ff00, 0 0 25px #88aa00; 
             border-color: #fff; 
         }
 
         .scale-labels {
             display: flex;
             justify-content: space-between;
-            width: 82%;
-            font-size: 13px;
+            width: 85%;
+            font-size: 14px;
             color: #44ffff;
             margin-top: 8px;
             text-shadow: 0 0 5px #00ffff;
         }
 
-        /* Digitálna Váha s Glow */
-        .weight-box { display: flex; gap: 8px; margin-top: 25px; }
+        /* Digitálne SVG segmenty */
+        .weight-box { display: flex; gap: 10px; margin-top: 25px; }
         .digit-svg { width: 65px; height: 110px; fill: #111; }
         .digit-svg path.on { 
             fill: #ffff00; 
-            /* Viacvrstvový glow pre číslice */
-            filter: drop-shadow(0 0 5px #ffff00) drop-shadow(0 0 15px #ffaa00); 
+            filter: drop-shadow(0 0 8px #ffff00) drop-shadow(0 0 15px #ffaa00); 
         }
         
-        .unit-g { color: #44ffff; font-size: 22px; margin-top: 5px; text-shadow: 0 0 10px #00ffff; }
+        .unit-g { color: #44ffff; font-size: 24px; margin-top: 5px; text-shadow: 0 0 10px #00ffff; }
 
-        /* Popisy */
-        .label-left { position: absolute; top: 245px; left: 30px; font-size: 13px; width: 130px; color: #44ffff; text-shadow: 0 0 8px #00ffff; }
-        .label-right { position: absolute; top: 255px; right: 30px; color: #ffff00; font-size: 16px; text-shadow: 0 0 12px #ffff00; font-weight: bold; }
+        /* Popisy po stranách */
+        .label-left { position: absolute; top: 250px; left: 35px; font-size: 14px; width: 140px; color: #40ffff; text-shadow: 0 0 8px #40ffff; }
+        .label-right { position: absolute; top: 260px; right: 35px; color: #ffff00; font-size: 18px; text-shadow: 0 0 12px #ffff00; font-weight: bold; }
 
         /* Odometer */
-        .odo-label { margin-top: 25px; font-size: 13px; color: #44ffff; text-shadow: 0 0 5px #00ffff; }
-        .odo-box { border: 2px solid #ffff00; padding: 5px; display: flex; gap: 3px; background: #000; box-shadow: 0 0 15px rgba(255,255,0,0.3); }
-        .odo-digit { width: 35px; height: 50px; background: #0a0a0a; border: 1px solid #333; color: #ffff00; font-size: 38px; text-align: center; font-weight: bold; line-height: 50px; text-shadow: 0 0 10px #ffff00; }
+        .odo-label { margin-top: 25px; font-size: 14px; color: #44ffff; text-shadow: 0 0 5px #00ffff; }
+        .odo-box { border: 2px solid #ffff00; padding: 5px; display: flex; gap: 4px; background: #000; box-shadow: 0 0 15px rgba(255,255,0,0.2); }
+        .odo-digit { width: 38px; height: 55px; background: #0a0a0a; border: 1px solid #333; color: #ffff00; font-size: 40px; text-align: center; font-weight: bold; line-height: 55px; text-shadow: 0 0 10px #ffff00; }
 
         /* Výstraha */
         .warning-icon {
             position: absolute;
-            bottom: 40px;
-            left: 50px;
-            font-size: 70px;
+            bottom: 45px;
+            left: 55px;
+            font-size: 75px;
             color: #ff0000;
             display: none;
             text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
-            animation: blink 0.6s infinite;
+            animation: blink 0.7s infinite;
         }
 
         @keyframes blink {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.2; transform: scale(0.9); }
-            100% { opacity: 1; transform: scale(1); }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.1; transform: scale(0.9); }
         }
     </style>
 </head>
@@ -122,15 +117,16 @@
 
         <div class="label-right" id="spoolId">---</div>
 
-        <div class="odo-label">dlzka</div>
+        <div class="odo-label">TOTAL LENGTH</div>
         <div style="display: flex; align-items: center; gap: 12px;">
             <div class="odo-box" id="odo"></div>
-            <div style="color: #1a75ff; font-size: 26px; font-weight: bold; text-shadow: 0 0 10px #1a75ff;">M</div>
+            <div style="color: #1a75ff; font-size: 28px; font-weight: bold; text-shadow: 0 0 10px #1a75ff;">M</div>
         </div>
     </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbykJ9iupeT0xWAsoQSI1hFESlTJf7VKr_OM8XEVHQpMB_95hNCZphtce8oCeHIZjZGR/exec";
+    // TU VLOŽ SVOJU NOVÚ URL Z DEPLOYMENTU
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmn0jectE7dtfZ9wmY33kqAuF6lJOMoLm3YXIj84MH6H6nkB3SRlmTmCni936FFEMW/exec";
 
     const segments = {
         '0': [1,1,1,0,1,1,1], '1': [0,0,1,0,0,1,0], '2': [1,0,1,1,1,0,1], '3': [1,0,1,1,0,1,1],
@@ -152,45 +148,44 @@
     }
 
     function updateDashboard() {
-        // Starý skript odstránime, aby sa nehromadili
-        const oldScript = document.getElementById('jsonp-data');
+        const oldScript = document.getElementById('jsonp-script');
         if (oldScript) oldScript.remove();
 
         const script = document.createElement('script');
-        script.id = 'jsonp-data';
-        // Pridaný action=dashboard a callback=handleData
+        script.id = 'jsonp-script';
         script.src = `${SCRIPT_URL}?action=dashboard&callback=handleData&t=${Date.now()}`;
         document.head.appendChild(script);
     }
 
-    // Táto funkcia MUSÍ byť globálna, aby ju JSONP videl
+    // Globálna funkcia pre spracovanie dát
     window.handleData = function(d) {
-        if (!d || d.error) {
-            console.log("Chyba dát:", d ? d.error : "null");
-            return;
-        }
+        if (!d || d.error) return;
 
-        const wVal = Math.round(d.weight) || 0;
+        // Váha
+        const wVal = Math.round(d.weight);
         const wStr = wVal.toString().padStart(3, ' ');
         document.getElementById('weight').innerHTML = wStr.split('').map(createDigitSVG).join('');
         
+        // Bar
         const p = Math.min((wVal / 1000) * 100, 100);
         document.getElementById('bar').innerHTML = Array.from({length:20}, (_,i) => 
             `<div class="seg ${i < p/5 ? 'on' : ''}" style="height:${15+(i*3.5)}px"></div>`).join('');
 
-        const lVal = Math.round(d.length) || 0;
+        // Odo
+        const lVal = Math.round(d.length);
         const lStr = lVal.toString().padStart(6, '0');
         document.getElementById('odo').innerHTML = lStr.split('').map(n => `<div class="odo-digit">${n}</div>`).join('');
 
         document.getElementById('material').innerText = d.material;
         document.getElementById('spoolId').innerText = d.id;
 
+        // Výstraha
         const alertElement = document.getElementById('alert');
         alertElement.style.display = (lVal < 10 || wVal < 50) ? 'block' : 'none';
     };
 
     updateDashboard();
-    setInterval(updateDashboard, 10000);
+    setInterval(updateDashboard, 100000); // 10 sekúnd stačí
 </script>
 
 </body>
