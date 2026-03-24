@@ -2,36 +2,26 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <title>Filament Dashboard</title>
+    <title>Prusa3s FILAMENT</title>
     <style>
-        body { background-color: #010105; color: #00ffff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-transform: uppercase; }
+        body { background-color: #010105; color: #00ffff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-transform: uppercase; overflow: hidden; }
         .container { width: 600px; height: 450px; border: 4px solid #1a75ff; box-shadow: 0 0 30px #0044cc, inset 0 0 20px #002266; position: relative; background: #010108; display: flex; flex-direction: column; align-items: center; }
         .header { color: #44ffff; letter-spacing: 6px; font-weight: bold; margin-top: 25px; font-size: 22px; text-shadow: 0 0 15px #00ffff; }
-        
-        /* Progress Bar s brutal glow */
         .bar-wrap { display: flex; align-items: flex-end; gap: 5px; margin-top: 25px; height: 80px; }
         .seg { width: 18px; background: #111; border: 1px solid #222; }
         .seg.on { background: #d4ff00; box-shadow: 0 0 15px #d4ff00, 0 0 30px #88aa00; border-color: #fff; }
-
         .scale-labels { display: flex; justify-content: space-between; width: 85%; font-size: 14px; color: #44ffff; margin-top: 8px; text-shadow: 0 0 5px #00ffff; }
-
-        /* Digitálne segmenty */
-        .weight-box { display: flex; gap: 10px; margin-top: 25px; }
+        .weight-box { display: flex; gap: 10px; margin-top: 25px; min-height: 110px; }
         .digit-svg { width: 65px; height: 110px; fill: #111; }
         .digit-svg path.on { fill: #ffff00; filter: drop-shadow(0 0 10px #ffff00) drop-shadow(0 0 20px #ffaa00); }
-        
         .unit-g { color: #44ffff; font-size: 24px; margin-top: 5px; text-shadow: 0 0 12px #00ffff; }
-        .label-left { position: absolute; top: 250px; left: 35px; font-size: 14px; color: #40ffff; text-shadow: 0 0 8px #40ffff; }
+        .label-left { position: absolute; top: 250px; left: 35px; font-size: 14px; color: #40ffff; text-shadow: 0 0 8px #40ffff; width: 140px; }
         .label-right { position: absolute; top: 260px; right: 35px; color: #ffff00; font-size: 18px; text-shadow: 0 0 15px #ffff00; font-weight: bold; }
-
-        /* Odometer */
         .odo-label { margin-top: 25px; font-size: 14px; color: #44ffff; text-shadow: 0 0 5px #00ffff; }
         .odo-box { border: 2px solid #ffff00; padding: 5px; display: flex; gap: 4px; background: #000; box-shadow: 0 0 20px rgba(255,255,0,0.3); }
         .odo-digit { width: 38px; height: 55px; background: #0a0a0a; border: 1px solid #333; color: #ffff00; font-size: 40px; text-align: center; font-weight: bold; line-height: 55px; text-shadow: 0 0 12px #ffff00; }
-
-        /* Vykričník */
         .warning-icon { position: absolute; bottom: 45px; left: 55px; font-size: 80px; color: #ff0000; display: none; text-shadow: 0 0 25px #ff0000, 0 0 50px #ff0000; animation: blink 0.7s infinite; z-index: 100; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
     </style>
 </head>
 <body>
@@ -44,75 +34,70 @@
         <div class="weight-box" id="weight"></div>
         <div class="unit-g">G</div>
         <div class="label-right" id="spoolId">---</div>
-        <div class="odo-label">TOTAL LENGTH</div>
+        <div class="odo-label">dlzka</div>
         <div style="display: flex; align-items: center; gap: 12px;">
             <div class="odo-box" id="odo"></div>
             <div style="color: #1a75ff; font-size: 28px; font-weight: bold; text-shadow: 0 0 15px #1a75ff;">M</div>
         </div>
     </div>
 
-<script>
-    // Tvoja overená URL
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxY4lXaenvrMR-tJpkcNIWyZRENHQLacS0Q_FBFBNNY81wF-W_Z1ThQBiqui11qislCSA/exec";
-    
-    const segments = { 
-        '0': [1,1,1,0,1,1,1], '1': [0,0,1,0,0,1,0], '2': [1,0,1,1,1,0,1], '3': [1,0,1,1,0,1,1], 
-        '4': [0,1,1,1,0,1,0], '5': [1,1,0,1,0,1,1], '6': [1,1,0,1,1,1,1], '7': [1,0,1,0,0,1,0], 
-        '8': [1,1,1,1,1,1,1], '9': [1,1,1,1,0,1,1], ' ': [0,0,0,0,0,0,0] 
-    };
-
-    function createDigitSVG(num) {
-        const active = segments[num] || segments[' '];
-        return `<svg viewBox="0 0 60 100" class="digit-svg">
-            <path class="${active[0]?'on':''}" d="M10,5 L50,5 L45,15 L15,15 Z" />
-            <path class="${active[1]?'on':''}" d="M5,10 L5,45 L15,40 L15,15 Z" />
-            <path class="${active[2]?'on':''}" d="M55,10 L55,45 L45,40 L45,15 Z" />
-            <path class="${active[3]?'on':''}" d="M10,45 L50,45 L45,55 L15,55 Z" />
-            <path class="${active[4]?'on':''}" d="M5,55 L5,90 L15,85 L15,60 Z" />
-            <path class="${active[5]?'on':''}" d="M55,55 L55,90 L45,85 L45,60 Z" />
-            <path class="${active[6]?'on':''}" d="M10,85 L50,85 L45,95 L15,95 Z" />
-        </svg>`;
-    }
-
-    // TÁTO FUNKCIA SPRACOVÁVA DÁTA
-    window.handleData = function(d) {
-        if (!d) return;
-
-        // 1. VÁHA
-        const wVal = Math.round(d.weight) || 0;
-        const weightStr = wVal.toString().padStart(3, ' ');
-        document.getElementById('weight').innerHTML = weightStr.split('').map(createDigitSVG).join('');
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxY4lXaenvrMR-tJpkcNIWyZRENHQLacS0Q_FBFBNNY81wF-W_Z1ThQBiqui11qislCSA/exec";
         
-        // 2. PROGRESS BAR
-        const p = Math.min((wVal / 1000) * 100, 100);
-        document.getElementById('bar').innerHTML = Array.from({length:20}, (_,i) => 
-            `<div class="seg ${i < p/5 ? 'on' : ''}" style="height:${15+(i*3.5)}px"></div>`).join('');
+        const segments = { 
+            '0': [1,1,1,0,1,1,1], '1': [0,0,1,0,0,1,0], '2': [1,0,1,1,1,0,1], '3': [1,0,1,1,0,1,1], 
+            '4': [0,1,1,1,0,1,0], '5': [1,1,0,1,0,1,1], '6': [1,1,0,1,1,1,1], '7': [1,0,1,0,0,1,0], 
+            '8': [1,1,1,1,1,1,1], '9': [1,1,1,1,0,1,1], ' ': [0,0,0,0,0,0,0] 
+        };
 
-        // 3. DĹŽKA (OPRAVENÁ CHYBA TU)
-        const lVal = Math.round(d.length) || 0;
-        const lengthStr = lVal.toString().padStart(6, '0');
-        document.getElementById('odo').innerHTML = lengthStr.split('').map(n => `<div class="odo-digit">${n}</div>`).join('');
+        function createDigitSVG(num) {
+            const active = segments[num] || segments[' '];
+            return `<svg viewBox="0 0 60 100" class="digit-svg">
+                <path class="${active[0]?'on':''}" d="M10,5 L50,5 L45,15 L15,15 Z" />
+                <path class="${active[1]?'on':''}" d="M5,10 L5,45 L15,40 L15,15 Z" />
+                <path class="${active[2]?'on':''}" d="M55,10 L55,45 L45,40 L45,15 Z" />
+                <path class="${active[3]?'on':''}" d="M10,45 L50,45 L45,55 L15,55 Z" />
+                <path class="${active[4]?'on':''}" d="M5,55 L5,90 L15,85 L15,60 Z" />
+                <path class="${active[5]?'on':''}" d="M55,55 L55,90 L45,85 L45,60 Z" />
+                <path class="${active[6]?'on':''}" d="M10,85 L50,85 L45,95 L15,95 Z" />
+            </svg>`;
+        }
 
-        // 4. TEXTY
-        document.getElementById('material').innerText = d.material || "---";
-        document.getElementById('spoolId').innerText = d.id || "---";
+        window.handleData = function(d) {
+            if (!d) return;
+            
+            // Váha
+            const wVal = Math.round(d.weight) || 0;
+            const wStr = wVal.toString().padStart(3, ' ');
+            document.getElementById('weight').innerHTML = wStr.split('').map(createDigitSVG).join('');
+            
+            // Progress Bar
+            const p = Math.min((wVal / 1000) * 100, 100);
+            document.getElementById('bar').innerHTML = Array.from({length:20}, (_,i) => 
+                `<div class="seg ${i < p/5 ? 'on' : ''}" style="height:${15+(i*3.5)}px"></div>`).join('');
 
-        // 5. VÝSTRAHA
-        document.getElementById('alert').style.display = (lVal < 10 || wVal < 50) ? 'block' : 'none';
-    };
+            // Dĺžka
+            const lVal = Math.round(d.length) || 0;
+            const lStr = lVal.toString().padStart(6, '0');
+            document.getElementById('odo').innerHTML = lStr.split('').map(n => `<div class="odo-digit">${n}</div>`).join('');
 
-    function update() {
-        const oldScript = document.getElementById('jsonp-loader');
-        if (oldScript) oldScript.remove();
+            // Texty
+            document.getElementById('material').innerText = d.material || "---";
+            document.getElementById('spoolId').innerText = d.id || "---";
 
-        const s = document.createElement('script');
-        s.id = 'jsonp-loader';
-        s.src = `${SCRIPT_URL}?action=dashboard&callback=handleData&t=${Date.now()}`;
-        document.head.appendChild(s);
-    }
+            // Výstraha
+            document.getElementById('alert').style.display = (lVal < 10 || wVal < 50) ? 'block' : 'none';
+        };
 
-    update();
-    setInterval(update, 10000);
-</script>
+        function update() {
+            const s = document.createElement('script');
+            s.src = `${SCRIPT_URL}?action=dashboard&callback=handleData&t=${Date.now()}`;
+            document.head.appendChild(s);
+            setTimeout(() => s.remove(), 2000);
+        }
+
+        update();
+        setInterval(update, 10000);
+    </script>
 </body>
 </html>
