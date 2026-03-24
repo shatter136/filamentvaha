@@ -2,111 +2,245 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <title>Prusa3s FILAMENT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filament Váha Dashboard</title>
     <style>
-        body { background-color: #010105; color: #00ffff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-transform: uppercase; overflow: hidden; }
-        .container { width: 600px; height: 450px; border: 4px solid #1a75ff; box-shadow: 0 0 30px #0044cc, inset 0 0 20px #002266; position: relative; background: #010108; display: flex; flex-direction: column; align-items: center; }
-        .header { color: #44ffff; letter-spacing: 6px; font-weight: bold; margin-top: 25px; font-size: 22px; text-shadow: 0 0 15px #00ffff; }
-        .bar-wrap { display: flex; align-items: flex-end; gap: 5px; margin-top: 25px; height: 80px; }
-        .seg { width: 18px; background: #111; border: 1px solid #222; }
-        .seg.on { background: #d4ff00; box-shadow: 0 0 15px #d4ff00, 0 0 30px #88aa00; border-color: #fff; }
-        .scale-labels { display: flex; justify-content: space-between; width: 85%; font-size: 14px; color: #44ffff; margin-top: 8px; text-shadow: 0 0 5px #00ffff; }
-        .weight-box { display: flex; gap: 10px; margin-top: 25px; min-height: 110px; }
-        .digit-svg { width: 65px; height: 110px; fill: #111; }
-        .digit-svg path.on { fill: #ffff00; filter: drop-shadow(0 0 10px #ffff00) drop-shadow(0 0 20px #ffaa00); }
-        .unit-g { color: #44ffff; font-size: 24px; margin-top: 5px; text-shadow: 0 0 12px #00ffff; }
-        .label-left { position: absolute; top: 250px; left: 35px; font-size: 14px; color: #40ffff; text-shadow: 0 0 8px #40ffff; width: 140px; }
-        .label-right { position: absolute; top: 260px; right: 35px; color: #ffff00; font-size: 18px; text-shadow: 0 0 15px #ffff00; font-weight: bold; }
-        .odo-label { margin-top: 25px; font-size: 14px; color: #44ffff; text-shadow: 0 0 5px #00ffff; }
-        .odo-box { border: 2px solid #ffff00; padding: 5px; display: flex; gap: 4px; background: #000; box-shadow: 0 0 20px rgba(255,255,0,0.3); min-width: 150px; min-height: 55px; }
-        .odo-digit { width: 38px; height: 55px; background: #0a0a0a; border: 1px solid #333; color: #ffff00; font-size: 40px; text-align: center; font-weight: bold; line-height: 55px; text-shadow: 0 0 12px #ffff00; }
-        .warning-icon { position: absolute; bottom: 45px; left: 55px; font-size: 80px; color: #ff0000; display: none; text-shadow: 0 0 25px #ff0000; animation: blink 0.7s infinite; z-index: 100; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        .refresh-btn { position: fixed; bottom: 20px; right: 20px; padding: 8px 15px; background: transparent; border: 2px solid #00f3ff; color: #00f3ff; font-family: 'Courier New', monospace; cursor: pointer; z-index: 1000; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --neon-blue: #00d4ff;
+            --neon-yellow: #f0f000;
+            --neon-red: #ff004c;
+            --bg-dark: #020210;
+        }
+
+        body {
+            background-color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        #dashboard {
+            background-color: var(--bg-dark);
+            width: 450px;
+            height: 350px;
+            border: 4px solid var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+            padding: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+        }
+
+        .title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        /* Grafický ukazovateľ (Bar chart) */
+        .bar-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 40px;
+            margin-bottom: 5px;
+        }
+
+        .bar {
+            width: 12px;
+            background: rgba(240, 240, 0, 0.2);
+            box-shadow: 0 0 2px var(--neon-yellow);
+        }
+
+        .bar.active {
+            background: var(--neon-yellow);
+            box-shadow: 0 0 8px var(--neon-yellow);
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.7rem;
+            margin-bottom: 20px;
+        }
+
+        /* Hlavná váha */
+        .weight-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 15px var(--neon-yellow);
+            margin: 10px 0;
+        }
+
+        .unit {
+            font-size: 1.2rem;
+            color: var(--neon-blue);
+            margin-top: -10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+
+        /* Celková dĺžka (Odometer look) */
+        .odometer-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .odometer {
+            display: flex;
+            background: rgba(240, 240, 0, 0.1);
+            border: 2px solid var(--neon-yellow);
+            padding: 5px;
+            gap: 2px;
+            box-shadow: inset 0 0 10px var(--neon-yellow);
+        }
+
+        .digit {
+            background: var(--neon-yellow);
+            color: black;
+            padding: 5px 8px;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        /* Ikonky */
+        .warning {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: var(--neon-red);
+            font-size: 2rem;
+            display: none;
+            text-shadow: 0 0 10px var(--neon-red);
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .blink { animation: blink 1s infinite; }
+
+        .refresh-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--neon-red);
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .refresh-btn:hover { transform: rotate(180deg); }
+
+        .material-label {
+            position: absolute;
+            left: 20px;
+            top: 160px;
+            font-size: 0.7rem;
+        }
     </style>
 </head>
 <body>
-    <button class="refresh-btn" onclick="refreshData()">Sync Data</button>
-    <div id="alert" class="warning-icon">!</div>
-    <div class="container">
-        <div class="header">FILAMENT VÁHA</div>
-        <div id="bar" class="bar-wrap"></div>
-        <div class="scale-labels"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span></div>
-        
-        <div id="material" class="label-left">---</div>
-        <div id="weight" class="weight-box"></div>
-        <div class="unit-g">G</div>
-        <div id="spoolId" class="label-right">---</div>
-        
-        <div class="odo-label">DLZKA</div>
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div id="odo" class="odo-box"></div>
-            <div style="color: #1a75ff; font-size: 28px; font-weight: bold; text-shadow: 0 0 15px #1a75ff;">M</div>
-        </div>
+
+<div id="dashboard">
+    <div class="title">FILAMENT VÁHA</div>
+    
+    <div class="bar-container" id="bars"></div>
+    <div class="scale-labels">
+        <span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span>
     </div>
 
+    <div class="material-label" id="material-name">PETG JET BLACK</div>
+
+    <div class="weight-display" id="weight-val">0</div>
+    <div class="unit">g</div>
+
+    <div class="odometer-container">
+        <div style="font-size: 0.7rem; margin-bottom: 5px;">total length</div>
+        <div class="odometer" id="length-val">
+            </div>
+    </div>
+
+    <div id="warning-icon" class="warning blink">⚠</div>
+    
+    <button class="refresh-btn" onclick="fetchData()">🔄</button>
+</div>
+
 <script>
-    function parseSlovakFloat(val) {
-        if (typeof val === 'number') return val;
-        if (!val) return 0;
-        return parseFloat(val.toString().replace(',', '.')) || 0;
+    // TVOJA URL ADRESA SKRIPTU (nahraď svojou realnou Web App URL)
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwCFgnrn0Krsxj7VKC1QLbTWl_GW5ATGc_zF5Nw7k7RWobid6xoNBVKQGFqGxuEzzLTvA/exec?action=dashboard";
+
+    // Vytvorenie grafických stĺpcov (0-100%)
+    const barsContainer = document.getElementById('bars');
+    for (let i = 0; i < 20; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = (10 + i * 5) + 'px'; // stupňovanie výšky
+        barsContainer.appendChild(bar);
     }
 
-    function createDigitSVG(digit) {
-        const segments = {
-            '0': [1,1,1,0,1,1,1], '1': [0,0,1,0,0,1,0], '2': [1,0,1,1,1,0,1],
-            '3': [1,0,1,1,0,1,1], '4': [0,1,1,1,0,1,0], '5': [1,1,0,1,0,1,1],
-            '6': [1,1,0,1,1,1,1], '7': [1,0,1,0,0,1,0], '8': [1,1,1,1,1,1,1], '9': [1,1,1,1,0,1,1]
-        };
-        const s = segments[digit] || [0,0,0,0,0,0,0];
-        return `<svg class="digit-svg" viewBox="0 0 65 110">
-            <path class="${s[0]?'on':''}" d="M10 5 L55 5 L50 12 L15 12 Z" />
-            <path class="${s[1]?'on':''}" d="M7 10 L12 15 L12 50 L5 55 Z" />
-            <path class="${s[2]?'on':''}" d="M58 10 L63 55 L56 50 L56 15 Z" />
-            <path class="${s[3]?'on':''}" d="M10 55 L15 50 L50 50 L55 55 L50 60 L15 60 Z" />
-            <path class="${s[4]?'on':''}" d="M7 60 L12 65 L12 100 L5 105 Z" />
-            <path class="${s[5]?'on':''}" d="M58 60 L63 105 L56 100 L56 65 Z" />
-            <path class="${s[6]?'on':''}" d="M10 105 L15 98 L50 98 L55 105 Z" />
-        </svg>`;
+    function updateDashboard(data) {
+        // Váha a materiál
+        document.getElementById('weight-val').innerText = Math.round(data.weight);
+        document.getElementById('material-name').innerText = data.material;
+
+        // Blikajúci vykričník (< 50g)
+        document.getElementById('warning-icon').style.display = data.weight < 50 ? 'block' : 'none';
+
+        // Update stĺpcov (predpokladáme max 1000g pre 100%)
+        const percentage = Math.min((data.weight / 1000) * 100, 100);
+        const barElements = document.querySelectorAll('.bar');
+        const activeCount = Math.floor((percentage / 100) * 20);
+        
+        barElements.forEach((bar, index) => {
+            bar.classList.toggle('active', index < activeCount);
+        });
+
+        // Update dĺžky (odometer štýl)
+        const lengthStr = Math.round(data.length).toString().padStart(6, '0');
+        const odomContainer = document.getElementById('length-val');
+        odomContainer.innerHTML = lengthStr.split('').map(d => `<div class="digit">${d}</div>`).join('') + '<span style="color:var(--neon-blue); margin-left:5px; align-self:center">M</span>';
     }
 
+    // JSONP callback funkcia
     function handleData(data) {
-        console.log("Dáta prijaté:", data);
-        const w = parseSlovakFloat(data.weight);
-        const l = parseSlovakFloat(data.length);
-
-        document.getElementById('material').innerText = data.material || "---";
-        document.getElementById('spoolId').innerText = data.id || "---";
-
-        // Váha
-        const wStr = Math.round(w).toString().padStart(3, '0');
-        document.getElementById('weight').innerHTML = [...wStr].map(n => createDigitSVG(n)).join('');
-
-        // ODO
-        const lStr = Math.round(l).toString().padStart(4, '0');
-        document.getElementById('odo').innerHTML = [...lStr].map(n => `<div class="odo-digit">${n}</div>`).join('');
-
-        // Bar
-        const bar = document.getElementById('bar');
-        bar.innerHTML = '';
-        const pct = Math.min((w / 1000) * 100, 100);
-        for(let i=0; i<20; i++) {
-            const s = document.createElement('div');
-            s.className = 'seg' + (i < (pct/5) ? ' on' : '');
-            s.style.height = (20 + i*3) + 'px';
-            bar.appendChild(s);
-        }
-
-        document.getElementById('alert').style.display = (w > 0 && w < 50) ? 'block' : 'none';
+        updateDashboard(data);
     }
 
-    function refreshData() {
-        const url = "https://script.google.com/macros/s/AKfycbwCFgnrn0Krsxj7VKC1QLbTWl_GW5ATGc_zF5Nw7k7RWobid6xoNBVKQGFqGxuEzzLTvA/exec";
-        const s = document.createElement('script');
-        s.src = url + "?action=dashboard&callback=handleData&t=" + Date.now();
-        document.body.appendChild(s);
+    function fetchData() {
+        // Odstránime starý skript ak existuje
+        const oldScript = document.getElementById('api-script');
+        if (oldScript) oldScript.remove();
+
+        // Vytvoríme nový skript pre JSONP (obídenie CORS)
+        const script = document.createElement('script');
+        script.id = 'api-script';
+        script.src = SCRIPT_URL + "&callback=handleData&t=" + new Date().getTime();
+        document.body.appendChild(script);
     }
-    window.onload = refreshData;
+
+    // Automatické načítanie každých 30 sekúnd
+    fetchData();
+    setInterval(fetchData, 30000);
 </script>
+
 </body>
 </html>
