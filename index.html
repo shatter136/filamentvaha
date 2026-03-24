@@ -49,19 +49,20 @@
         }
 
         /* Grafický ukazovateľ (Bar chart) */
-        .bar-container {
+       .bar-container {
     display: flex;
     align-items: flex-end;
-    gap: 3px;
-    height: 30px; /* Znížená výška stĺpcov */
-    margin-top: 25px; /* Odstup od nadpisu FILAMENT VÁHA */
-    margin-bottom: 5px;
+    /* Toto roztiahne stĺpce presne od kraja po kraj */
+    justify-content: space-between; 
+    width: 100%; /* Dôležité pre zarovnanie s číslami */
+    height: 50px; /* Trošku vyššie ako minule */
+    margin-top: 30px;
 }
 
-        .bar {
-    width: 12px;
-    background: rgba(240, 240, 0, 0.1);
-    border: 1px solid rgba(240, 240, 0, 0.2);
+.bar {
+    width: 14px; /* O chlp širšie */
+    background: rgba(240, 240, 0, 0.05);
+    border: 1px solid rgba(240, 240, 0, 0.1);
 }
 
         .bar.active {
