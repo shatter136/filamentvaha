@@ -74,27 +74,34 @@
 
    <script>
     function handleData(data) {
-        console.log("Dáta úspešne prijaté:", data);
+    console.log("Dáta úspešne prijaté:", data);
 
-        try {
-            // Tvoj HTML má ID "vaha", "dlzka", "typ" a "id"
-            if (document.getElementById('vaha')) {
-                document.getElementById('vaha').innerText = data.weight;
-            }
-            if (document.getElementById('dlzka')) {
-                document.getElementById('dlzka').innerText = data.length;
-            }
-            if (document.getElementById('typ')) { // Na Githube máš <div id="typ">
-                document.getElementById('typ').innerText = data.material;
-            }
-            if (document.getElementById('id')) { // Na Githube máš <div id="id">
-                document.getElementById('id').innerText = data.id;
-            }
-            console.log("UI úspešne aktualizované.");
-        } catch (err) {
-            console.error("Chyba pri zápise do HTML:", err);
+    try {
+        // querySelector('.nazov') hľadá elementy podľa CLASS
+        const vahaEl = document.querySelector('.vaha');
+        const dlzkaEl = document.querySelector('.dlzka');
+        const typEl = document.querySelector('.typ');
+        const idEl = document.querySelector('.id');
+
+        if (vahaEl) {
+            vahaEl.innerText = data.weight;
+            vahaEl.style.color = "#00f3ff"; // Poistka, nech to svieti
         }
+        if (dlzkaEl) {
+            dlzkaEl.innerText = data.length;
+        }
+        if (typEl) {
+            typEl.innerText = data.material;
+        }
+        if (idEl) {
+            idEl.innerText = data.id;
+        }
+
+        console.log("UI úspešne aktualizované cez triedy (class).");
+    } catch (err) {
+        console.error("Chyba pri zápise do class:", err);
     }
+}
 
     function refreshData() {
         // Tvoja URL (nechávam tú z minulého pokusu, skontroluj či je správna)
