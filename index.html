@@ -78,9 +78,17 @@
 }
 
         .bar.active {
-            background: var(--neon-yellow);
-            box-shadow: 0 0 8px var(--neon-yellow);
-        }
+    /* Prechod: dole zelená, hore žltá */
+    background: linear-gradient(to top, #00ff88 0%, var(--neon-yellow) 80%);
+    
+    /* Dvojitý neonový glow: zelený aj žltý opar */
+    box-shadow: 
+        0 0 10px rgba(0, 255, 136, 0.7), /* Zelená žiara dole */
+        0 0 15px rgba(240, 240, 0, 0.5),   /* Žltá žiara hore */
+        inset 0 0 3px rgba(240, 240, 0, 0.3); /* Vnútorný žltý odlesk */
+        
+    border: 1px solid rgba(240, 240, 0, 0.4);
+}
 
         .scale-labels {
     display: flex;
