@@ -4,27 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PRUSA3S FILAMENT</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Michroma&display=swap" rel="stylesheet">
     <style>
-        @font-face {
-            font-family: 'SevenSegment';
-            src: url('https://db.onlinewebfonts.com/t/9da864390757a796e959d64a09a5c69b.woff2') format('woff2');
-        }
-
         :root {
-            --bg-color: #050505;
-            --neon-cyan: #00f2ff;
-            --neon-blue: #007fff;
-            --neon-yellow: #f4d03f;
-            --neon-magenta: #ff00ff;
-            --segment-off: #1a1a1a;
-            --glow-yellow: 0 0 15px rgba(244, 208, 63, 0.7);
-            --glow-cyan: 0 0 10px rgba(0, 242, 255, 0.5);
+            --bg-color: #05060f;
+            --cyan: #00f2ff;
+            --blue-glow: #007fff;
+            --yellow: #f4d03f;
+            --yellow-glow: rgba(244, 208, 63, 0.6);
         }
 
         body {
             background-color: var(--bg-color);
-            color: var(--neon-cyan);
+            color: var(--cyan);
             font-family: 'Orbitron', sans-serif;
             display: flex;
             justify-content: center;
@@ -32,218 +24,240 @@
             height: 100vh;
             margin: 0;
             text-transform: uppercase;
-            overflow: hidden;
         }
 
         .dashboard {
-            border: 2px solid var(--neon-blue);
+            width: 600px;
             padding: 40px;
-            background: linear-gradient(180deg, rgba(0,127,255,0.05) 0%, rgba(0,0,0,0) 100%);
-            box-shadow: inset 0 0 20px rgba(0,127,255,0.2), 0 0 40px rgba(0,0,0,1);
-            width: 550px;
+            border: 3px solid var(--blue-glow);
+            box-shadow: inset 0 0 20px rgba(0, 127, 255, 0.3), 0 0 40px rgba(0, 0, 0, 1);
+            background: black;
             position: relative;
         }
 
-        /* Horný panel - Tachometer */
-        .top-panel {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 25px;
-            border-bottom: 1px solid var(--neon-blue);
-            padding-bottom: 15px;
+        .title {
+            text-align: center;
+            font-size: 1.2rem;
+            letter-spacing: 6px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--cyan);
         }
 
-        .bar-container {
+        /* TACHOMETER PANEL */
+        .tachometer-container {
+            border-bottom: 2px solid var(--blue-glow);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        .bar-wrapper {
             display: flex;
-            gap: 4px;
             align-items: flex-end;
+            gap: 4px;
+            height: 60px;
+            margin-bottom: 5px;
         }
 
         .segment {
-            width: 14px;
-            background-color: var(--segment-off);
-            transition: all 0.3s ease;
+            flex: 1;
+            background-color: #111;
+            transition: 0.3s;
         }
 
         .segment.on {
-            background-color: var(--neon-yellow);
-            box-shadow: var(--glow-yellow);
+            background-color: var(--yellow);
+            box-shadow: 0 0 15px var(--yellow-glow);
         }
 
-        .material-info {
-            text-align: right;
-            font-size: 0.85rem;
-            color: var(--neon-yellow);
-            text-shadow: var(--glow-yellow);
-            max-width: 180px;
+        .scale {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--cyan);
+            padding: 0 2px;
         }
 
-        /* Hlavný displej - Váha */
+        /* MAIN WEIGHT DISPLAY */
         .main-display {
-            text-align: center;
-            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin: 40px 0;
+        }
+
+        .side-label-left {
+            position: absolute;
+            left: 0;
+            font-size: 0.7rem;
+            color: var(--cyan);
+        }
+
+        .side-label-right {
+            position: absolute;
+            right: 0;
+            text-align: right;
+            font-size: 0.7rem;
         }
 
         .weight-value {
-            font-family: 'SevenSegment', sans-serif;
-            font-size: 7rem;
-            color: var(--neon-yellow);
-            text-shadow: var(--glow-yellow);
+            font-family: 'Michroma', sans-serif;
+            font-size: 8rem;
+            color: var(--yellow);
+            text-shadow: 0 0 20px var(--yellow-glow);
             line-height: 1;
+            letter-spacing: -5px;
         }
 
-        .unit {
-            font-size: 1.2rem;
+        .small-g {
             display: block;
-            margin-top: 5px;
-            letter-spacing: 5px;
-            color: var(--neon-cyan);
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: -10px;
+            color: var(--cyan);
         }
 
-        /* Spodná mriežka s dátami */
-        .data-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        /* ODOMETER */
+        .total-length-section {
+            text-align: center;
             margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--neon-blue);
         }
 
-        .data-item { font-size: 0.75rem; }
-        .data-label { color: var(--neon-blue); margin-right: 8px; font-weight: bold; }
-        .data-value { color: #fff; }
+        .odometer-label {
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            display: block;
+        }
 
-        .odometer-box {
-            display: inline-block;
-            border: 1px solid var(--neon-yellow);
-            padding: 3px 8px;
+        .odometer-container {
+            display: inline-flex;
+            border: 2px solid var(--yellow);
+            padding: 5px;
             background: #111;
-            color: var(--neon-yellow);
-            box-shadow: var(--glow-yellow);
-            font-size: 0.9rem;
+            box-shadow: 0 0 10px var(--yellow-glow);
         }
 
-        .btn-reset {
+        .odo-digit {
+            font-size: 1.8rem;
+            color: var(--yellow);
+            padding: 0 5px;
+            border-right: 1px solid #333;
+        }
+
+        .unit-m {
+            font-size: 1.5rem;
+            margin-left: 10px;
+            align-self: center;
+        }
+
+        .btn-refresh {
             display: block;
             margin: 30px auto 0;
             background: none;
-            border: 1px solid var(--neon-magenta);
-            color: var(--neon-magenta);
+            border: 1px solid #ff00ff;
+            color: #ff00ff;
             padding: 5px 15px;
             font-family: inherit;
             font-size: 0.6rem;
             cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-reset:hover {
-            background: var(--neon-magenta);
-            color: #000;
-            box-shadow: 0 0 10px var(--neon-magenta);
         }
     </style>
 </head>
 <body>
 
 <div class="dashboard">
-    <div style="text-align: center; font-size: 0.9rem; margin-bottom: 20px; letter-spacing: 5px; color: var(--neon-blue);">FILAMENT STATUS</div>
-    
-    <div class="top-panel">
-        <div class="bar-container" id="pixel-bar">
-            </div>
-        <div class="material-info" id="mat-label">NAČÍTAM...</div>
+    <div class="title">FILAMENT VÁHA</div>
+
+    <div class="tachometer-container">
+        <div class="bar-wrapper" id="bar"></div>
+        <div class="scale">
+            <span>0</span><span>10</span><span>20</span><span>30</span><span>40</span>
+            <span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span>
+        </div>
     </div>
 
     <div class="main-display">
-        <div class="weight-value" id="weight-val">000</div>
-        <span class="unit">GRAMS</span>
-    </div>
-
-    <div class="data-grid">
-        <div>
-            <div class="data-item"><span class="data-label">HEX:</span><span id="data-hex" class="data-value">---</span></div>
-            <div class="data-item"><span class="data-label">ID:</span><span id="data-id" class="data-value">---</span></div>
+        <div class="side-label-left" id="mat-label">PETG JET BLACK</div>
+        
+        <div class="weight-box">
+            <div class="weight-value" id="weight-val">000</div>
+            <div class="small-g">g</div>
         </div>
-        <div style="text-align: right;">
-            <div class="data-item"><span class="data-label">TOTAL LENGTH:</span></div>
-            <div class="odometer-box"><span id="data-len">0000</span> M</div>
+
+        <div class="side-label-right">
+            <div style="color: var(--cyan)">LENGTH: <span id="data-len-raw">0</span> M</div>
+            <div style="color: var(--yellow)" id="data-id">SPOOL-VS</div>
         </div>
     </div>
 
-    <button class="btn-reset" onclick="manualRefresh()">FORCE REFRESH</button>
+    <div class="total-length-section">
+        <span class="odometer-label">total length</span>
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <div class="odometer-container" id="odometer">
+                </div>
+            <span class="unit-m">M</span>
+        </div>
+    </div>
+
+    <button class="btn-refresh" onclick="updateData()">FORCE REFRESH</button>
 </div>
 
 <script>
-    // TU VLOŽ SVOJ FIXNÝ LINK
     const FIXED_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxFZl_JAITJGkdodcTo1ZBF6Do-cjigonJjrTJUDsOG8AWZL9HAmUUWOAd9NkwIBMCYHtOqVTZ9KV7/pub?gid=233832092&single=true&output=csv";
 
-    // Vygenerovanie 20 segmentov s narastajúcou výškou
-    const barContainer = document.getElementById('pixel-bar');
-    for (let i = 0; i < 20; i++) {
-        const seg = document.createElement('div');
-        seg.className = 'segment';
-        seg.style.height = (10 + (i * 2.5)) + 'px'; // Narastajúca výška
-        barContainer.appendChild(seg);
+    // Inicializácia Baru (25 segmentov pre jemnejší krok)
+    const bar = document.getElementById('bar');
+    const segCount = 25;
+    for (let i = 0; i < segCount; i++) {
+        const s = document.createElement('div');
+        s.className = 'segment';
+        s.style.height = (15 + (i * 1.8)) + 'px';
+        bar.appendChild(s);
     }
 
     async function updateData() {
-        if (!FIXED_CSV_URL || FIXED_CSV_URL.includes("SEM_VLOZ")) {
-            document.getElementById('mat-label').innerText = "CHYBA: VLOŽ LINK DO KÓDU";
-            return;
-        }
+        if (!FIXED_CSV_URL || FIXED_CSV_URL.includes("SEM_VLOZ")) return;
 
         try {
-            const response = await fetch(FIXED_CSV_URL + "&t=" + new Date().getTime());
-            const text = await response.text();
-            const allRows = text.trim().split(/\r?\n/);
+            const res = await fetch(FIXED_CSV_URL + "&t=" + new Date().getTime());
+            const text = await res.text();
+            const rows = text.trim().split(/\r?\n/);
+            const valid = rows.filter(r => r.split(',')[4] && r.split(',')[4].replace(/"/g,'').trim() !== "0");
             
-            let validRows = allRows.filter(row => {
-                const cols = row.split(',');
-                return cols[4] && cols[4].replace(/"/g, '').trim() !== "" && cols[4].replace(/"/g, '').trim() !== "0";
-            });
+            if (valid.length === 0) return;
+            const last = valid[valid.length - 1].split(',');
 
-            if (validRows.length === 0) return;
-            const lastRow = validRows[validRows.length - 1].split(',');
+            const vaha = Math.round(parseFloat((last[4] || "0").replace(/"/g, '').replace(',', '.')));
+            const material = (last[2] || "---").replace(/"/g, '');
+            const len = (last[5] || "0").replace(/"/g, '');
+            const id = (last[0] || "---").replace(/"/g, '');
 
-            const vaha = parseFloat((lastRow[4] || "0").replace(/"/g, '').replace(',', '.'));
-            const material = (lastRow[2] || "---").replace(/"/g, '');
-            let hex = (lastRow[3] || "00f2ff").replace(/"/g, '').trim();
-            if (!hex.startsWith('#')) hex = '#' + hex;
-
-            // Update Texty
-            document.getElementById('weight-val').innerText = Math.round(vaha).toString().padStart(3, '0');
+            // Update UI
+            document.getElementById('weight-val').innerText = vaha;
             document.getElementById('mat-label').innerText = material;
-            document.getElementById('data-hex').innerText = hex;
-            document.getElementById('data-hex').style.color = hex;
-            document.getElementById('data-len').innerText = (lastRow[5] || "0000").replace(/"/g, '').padStart(4, '0');
-            document.getElementById('data-id').innerText = (lastRow[0] || "---").replace(/"/g, '');
+            document.getElementById('data-len-raw').innerText = len;
+            document.getElementById('data-id').innerText = id;
 
-            // Update Progress Bar (predpokladáme max 1000g)
-            const percent = Math.min(Math.max((vaha / 1000) * 100, 0), 100);
-            const activeSegments = Math.round((percent / 100) * 20);
-            const segments = document.querySelectorAll('.segment');
-            
-            segments.forEach((seg, index) => {
-                if (index < activeSegments) {
-                    seg.classList.add('on');
-                } else {
-                    seg.classList.remove('on');
-                }
+            // Update Odometer
+            const odoContainer = document.getElementById('odometer');
+            odoContainer.innerHTML = '';
+            const paddedLen = len.toString().padStart(6, '0');
+            for (char of paddedLen) {
+                const d = document.createElement('div');
+                d.className = 'odo-digit';
+                d.innerText = char;
+                odoContainer.appendChild(d);
+            }
+
+            // Update Bar (predpoklad max 1000g)
+            const activeCount = Math.round((vaha / 1000) * segCount);
+            document.querySelectorAll('.segment').forEach((s, i) => {
+                s.classList.toggle('on', i < activeCount);
             });
 
-        } catch (e) {
-            console.error("Chyba načítania:", e);
-            document.getElementById('mat-label').innerText = "CHYBA SPOJENIA";
-        }
+        } catch (e) { console.error(e); }
     }
 
-    function manualRefresh() {
-        updateData();
-    }
-
-    // Automatická aktualizácia každých 15 sekúnd
     setInterval(updateData, 15000);
     updateData();
 </script>
