@@ -188,7 +188,7 @@
 
 <script>
     // TVOJA URL ADRESA SKRIPTU (nahraď svojou realnou Web App URL)
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuZ6p0lp78vsrEnYiXkuctHQpzZNdNxJkTH940r5Su-dIQNJYFVX8HvL-g81PEerjFGA/exec?action=dashboard";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuZ6p0lp78vsrEnYiXkuctHQpzZNdNxJkTH940r5Su-dIQNJYFVX8HvL-g81PEerjFGA/exec";
 
     // Vytvorenie grafických stĺpcov (0-100%)
     const barsContainer = document.getElementById('bars');
@@ -235,9 +235,14 @@
         // Vytvoríme nový skript pre JSONP (obídenie CORS)
         const script = document.createElement('script');
         script.id = 'api-script';
-        script.src = SCRIPT_URL + "&callback=handleData&t=" + new Date().getTime();
+        
+
+        script.src = SCRIPT_URL + "?action=dashboard&callback=handleData&t=" + Date.now();
+        
         document.body.appendChild(script);
+        console.log("Volám URL:", script.src);
     }
+   
 
     // Automatické načítanie každých 30 sekúnd
     fetchData();
