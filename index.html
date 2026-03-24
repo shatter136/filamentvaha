@@ -52,34 +52,65 @@
     </div>
 
 <script>
+    // Tvoja overená URL
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxY4lXaenvrMR-tJpkcNIWyZRENHQLacS0Q_FBFBNNY81wF-W_Z1ThQBiqui11qislCSA/exec";
-    const segments = { '0': [1,1,1,0,1,1,1], '1': [0,0,1,0,0,1,0], '2': [1,0,1,1,1,0,1], '3': [1,0,1,1,0,1,1], '4': [0,1,1,1,0,1,0], '5': [1,1,0,1,0,1,1], '6': [1,1,0,1,1,1,1], '7': [1,0,1,0,0,1,0], '8': [1,1,1,1,1,1,1], '9': [1,1,1,1,0,1,1], ' ': [0,0,0,0,0,0,0] };
+    
+    const segments = { 
+        '0': [1,1,1,0,1,1,1], '1': [0,0,1,0,0,1,0], '2': [1,0,1,1,1,0,1], '3': [1,0,1,1,0,1,1], 
+        '4': [0,1,1,1,0,1,0], '5': [1,1,0,1,0,1,1], '6': [1,1,0,1,1,1,1], '7': [1,0,1,0,0,1,0], 
+        '8': [1,1,1,1,1,1,1], '9': [1,1,1,1,0,1,1], ' ': [0,0,0,0,0,0,0] 
+    };
 
     function createDigitSVG(num) {
         const active = segments[num] || segments[' '];
         return `<svg viewBox="0 0 60 100" class="digit-svg">
-            <path class="${active[0]?'on':''}" d="M10,5 L50,5 L45,15 L15,15 Z" /><path class="${active[1]?'on':''}" d="M5,10 L5,45 L15,40 L15,15 Z" /><path class="${active[2]?'on':''}" d="M55,10 L55,45 L45,40 L45,15 Z" /><path class="${active[3]?'on':''}" d="M10,45 L50,45 L45,55 L15,55 Z" /><path class="${active[4]?'on':''}" d="M5,55 L5,90 L15,85 L15,60 Z" /><path class="${active[5]?'on':''}" d="M55,55 L55,90 L45,85 L45,60 Z" /><path class="${active[6]?'on':''}" d="M10,85 L50,85 L45,95 L15,95 Z" />
+            <path class="${active[0]?'on':''}" d="M10,5 L50,5 L45,15 L15,15 Z" />
+            <path class="${active[1]?'on':''}" d="M5,10 L5,45 L15,40 L15,15 Z" />
+            <path class="${active[2]?'on':''}" d="M55,10 L55,45 L45,40 L45,15 Z" />
+            <path class="${active[3]?'on':''}" d="M10,45 L50,45 L45,55 L15,55 Z" />
+            <path class="${active[4]?'on':''}" d="M5,55 L5,90 L15,85 L15,60 Z" />
+            <path class="${active[5]?'on':''}" d="M55,55 L55,90 L45,85 L45,60 Z" />
+            <path class="${active[6]?'on':''}" d="M10,85 L50,85 L45,95 L15,95 Z" />
         </svg>`;
     }
 
+    // TÁTO FUNKCIA SPRACOVÁVA DÁTA
     window.handleData = function(d) {
+        if (!d) return;
+
+        // 1. VÁHA
         const wVal = Math.round(d.weight) || 0;
-        document.getElementById('weight').innerHTML = wVal.toString().padStart(3, ' ').split('').map(createDigitSVG).join('');
+        const weightStr = wVal.toString().padStart(3, ' ');
+        document.getElementById('weight').innerHTML = weightStr.split('').map(createDigitSVG).join('');
+        
+        // 2. PROGRESS BAR
         const p = Math.min((wVal / 1000) * 100, 100);
-        document.getElementById('bar').innerHTML = Array.from({length:20}, (_,i) => `<div class="seg ${i < p/5 ? 'on' : ''}" style="height:${15+(i*3.5)}px"></div>`).join('');
+        document.getElementById('bar').innerHTML = Array.from({length:20}, (_,i) => 
+            `<div class="seg ${i < p/5 ? 'on' : ''}" style="height:${15+(i*3.5)}px"></div>`).join('');
+
+        // 3. DĹŽKA (OPRAVENÁ CHYBA TU)
         const lVal = Math.round(d.length) || 0;
-        document.getElementById('odo').innerHTML = lStr = lVal.toString().padStart(6, '0').split('').map(n => `<div class="odo-digit">${n}</div>`).join('');
-        document.getElementById('material').innerText = d.material;
-        document.getElementById('spoolId').innerText = d.id;
+        const lengthStr = lVal.toString().padStart(6, '0');
+        document.getElementById('odo').innerHTML = lengthStr.split('').map(n => `<div class="odo-digit">${n}</div>`).join('');
+
+        // 4. TEXTY
+        document.getElementById('material').innerText = d.material || "---";
+        document.getElementById('spoolId').innerText = d.id || "---";
+
+        // 5. VÝSTRAHA
         document.getElementById('alert').style.display = (lVal < 10 || wVal < 50) ? 'block' : 'none';
     };
 
     function update() {
+        const oldScript = document.getElementById('jsonp-loader');
+        if (oldScript) oldScript.remove();
+
         const s = document.createElement('script');
+        s.id = 'jsonp-loader';
         s.src = `${SCRIPT_URL}?action=dashboard&callback=handleData&t=${Date.now()}`;
         document.head.appendChild(s);
-        setTimeout(() => s.remove(), 1000);
     }
+
     update();
     setInterval(update, 10000);
 </script>
