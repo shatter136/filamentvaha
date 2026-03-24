@@ -80,12 +80,12 @@
 
         /* Hlavná váha */
         .weight-display {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 5rem;
-            color: var(--neon-yellow);
-            text-shadow: 0 0 15px var(--neon-yellow);
-            margin: 10px 0;
-        }
+    font-family: 'Orbitron', sans-serif;
+    font-size: 5.5rem;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 15px var(--neon-yellow), 0 0 30px rgba(240, 240, 0, 0.6);
+    margin: 5px 0;
+}
 
         .unit {
             font-size: 1.2rem;
@@ -112,8 +112,8 @@
     background: rgba(240, 240, 0, 0.05);
     border: 2px solid var(--neon-yellow);
     padding: 5px;
-    gap: 2px;
-    box-shadow: 0 0 15px var(--neon-yellow), inset 0 0 5px var(--neon-yellow); /* Poriadny žltý glow */
+    gap: 3px;
+    box-shadow: 0 0 20px rgba(240, 240, 0, 0.4), inset 0 0 10px rgba(240, 240, 0, 0.2);
 }
 
         .digit {
@@ -157,11 +157,15 @@
         .refresh-btn:hover { transform: rotate(180deg); }
 
         .material-label {
-            position: absolute;
-            left: 20px;
-            top: 160px;
-            font-size: 0.7rem;
-        }
+    position: absolute;
+    left: 20px;
+    top: 55%; /* Posun na stred výšky dashboardu */
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    width: 80px;
+    text-align: left;
+    line-height: 1.2;
+}
     </style>
 </head>
 <body>
@@ -199,12 +203,12 @@
     // Vytvorenie grafických stĺpcov (0-100%)
    // Vygenerovanie nižších paličiek
 const barsContainer = document.getElementById('bars');
-barsContainer.innerHTML = ''; // Vyčisti ak tam niečo bolo
+barsContainer.innerHTML = ''; 
 for (let i = 0; i < 20; i++) {
     const bar = document.createElement('div');
     bar.className = 'bar';
-    // Výška bude od 5px po 25px (predtým bola až do 110px, preto to lietalo do nadpisu)
-    bar.style.height = (5 + i * 1) + 'px'; 
+    // Výška bude od 8px po 45px
+    bar.style.height = (8 + i * 2) + 'px'; 
     barsContainer.appendChild(bar);
 }
 
