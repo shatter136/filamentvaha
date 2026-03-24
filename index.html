@@ -63,31 +63,40 @@
             </svg>`;
         }
 
-        window.handleData = function(d) {
-    if (!d) return;
+        window.handleData = function(data) {
+    // 1. Skontrolujeme, či dáta vôbec prišli v poli "rows" (ako tečú zo stránky)
+    if (!data || !data.rows || data.rows.length === 0) {
+        console.error("Dáta z tabuľky neprišli alebo sú prázdne.");
+        return;
+    }
 
-    // Tvoj App Script posiela priamo d.weight a d.length (vidím to v sieťovej komunikácii)
-    const wVal = Math.round(parseFloat(d.weight)) || 0;
-    const lVal = Math.round(parseFloat(d.length)) || 0;
+    // 2. Tvoj skript posiela polia, preto musíme brať konkrétny stĺpec podla tabuľky
+    const poslednyRiadok = data.rows[data.rows.length - 1]; // Berieme posledný záznam
+    const vahaZTabulky = poslednyRiadok[4]; // 5. stĺpec (index 4)
+    const dlzkaZTabulky = poslednyRiadok[5]; // 6. stĺpec (index 5)
+    const materialZTabulky = poslednyRiadok[2]; // 3. stĺpec (index 2)
+    const idZTabulky = poslednyRiadok[0]; // 1. stĺpec (index 0)
 
-    // 1. VÁHA - vykreslenie
+    // 3. VÁHA
+    const wVal = Math.round(parseFloat(vahaZTabulky)) || 0;
     const wStr = wVal.toString().padStart(3, ' ');
     document.getElementById('weight').innerHTML = wStr.split('').map(createDigitSVG).join('');
     
-    // 2. PROGRESS BAR
+    // 4. PROGRESS BAR (0-100)
     const p = Math.min((wVal / 1000) * 100, 100);
     document.getElementById('bar').innerHTML = Array.from({length:20}, (_,i) => 
         `<div class="seg ${i < p/5 ? 'on' : ''}" style="height:${15+(i*3.5)}px"></div>`).join('');
 
-    // 3. DĹŽKA - odometer
+    // 5. DĹŽKA (odometer)
+    const lVal = Math.round(parseFloat(dlzkaZTabulky)) || 0;
     const lStr = lVal.toString().padStart(6, '0');
     document.getElementById('odo').innerHTML = lStr.split('').map(n => `<div class="odo-digit">${n}</div>`).join('');
 
-    // 4. TEXTY
-    document.getElementById('material').innerText = d.material || "NEZNÁMY";
-    document.getElementById('spoolId').innerText = d.id || "---";
+    // 6. TEXTY
+    document.getElementById('material').innerText = materialZTabulky || "---";
+    document.getElementById('spoolId').innerText = idZTabulky || "---";
 
-    // 5. VÝSTRAHA
+    // 7. VÝSTRAHA (blikajúci vykričník)
     document.getElementById('alert').style.display = (lVal < 10 || wVal < 50) ? 'block' : 'none';
 };
 
