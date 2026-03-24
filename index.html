@@ -72,52 +72,82 @@
         </div>
     </div>
 
-   <script>
+  <script>
     function handleData(data) {
-    console.log("Dáta úspešne prijaté:", data);
+        console.log("Dáta prišli:", data);
 
-    try {
-        // querySelector('.nazov') hľadá elementy podľa CLASS
-        const vahaEl = document.querySelector('.vaha');
-        const dlzkaEl = document.querySelector('.dlzka');
-        const typEl = document.querySelector('.typ');
-        const idEl = document.querySelector('.id');
+        try {
+            // 1. AKTUALIZÁCIA MATERIÁLU A ID
+            document.getElementById('material').innerText = data.material || "---";
+            document.getElementById('spoolId').innerText = data.id || "---";
 
-        if (vahaEl) {
-            vahaEl.innerText = data.weight;
-            vahaEl.style.color = "#00f3ff"; // Poistka, nech to svieti
-        }
-        if (dlzkaEl) {
-            dlzkaEl.innerText = data.length;
-        }
-        if (typEl) {
-            typEl.innerText = data.material;
-        }
-        if (idEl) {
-            idEl.innerText = data.id;
-        }
+            // 2. AKTUALIZÁCIA VÁHY (Tie 7-segmentové cifry)
+            const weightVal = Math.round(data.weight || 0).toString().padStart(3, '0');
+            const weightContainer = document.getElementById('weight');
+            weightContainer.innerHTML = ''; // Vyčistíme staré cifry
+            
+            [...weightVal].forEach(num => {
+                weightContainer.innerHTML += createDigitSVG(num);
+            });
 
-        console.log("UI úspešne aktualizované cez triedy (class).");
-    } catch (err) {
-        console.error("Chyba pri zápise do class:", err);
+            // 3. AKTUALIZÁCIA DĹŽKY (ODO meter)
+            const lengthVal = Math.round(data.length || 0).toString().padStart(4, '0');
+            const odoContainer = document.getElementById('odo');
+            odoContainer.innerHTML = ''; 
+            
+            [...lengthVal].forEach(num => {
+                const div = document.createElement('div');
+                div.className = 'odo-digit';
+                div.innerText = num;
+                odoContainer.appendChild(div);
+            });
+
+            // 4. AKTUALIZÁCIA STUPNICE (Bar wrap)
+            const barContainer = document.getElementById('bar');
+            barContainer.innerHTML = '';
+            const percent = Math.min(Math.max((data.weight / 1000) * 100, 0), 100); // Predpokladám max 1000g
+            for (let i = 0; i < 20; i++) {
+                const seg = document.createElement('div');
+                seg.className = 'seg' + (i < (percent / 5) ? ' on' : '');
+                seg.style.height = (20 + i * 3) + 'px';
+                barContainer.appendChild(seg);
+            }
+
+            console.log("Dashboard úspešne prekreslený!");
+        } catch (err) {
+            console.error("Chyba pri kreslení UI:", err);
+        }
     }
-}
+
+    // Pomocná funkcia na vytvorenie SVG číslice (tú tam potrebuješ, aby to svietilo)
+    function createDigitSVG(digit) {
+        const segments = {
+            '0': [1,1,1,0,1,1,1], '1': [0,0,1,0,0,1,0], '2': [1,0,1,1,1,0,1],
+            '3': [1,0,1,1,0,1,1], '4': [0,1,1,1,0,1,0], '5': [1,1,0,1,0,1,1],
+            '6': [1,1,0,1,1,1,1], '7': [1,0,1,0,0,1,0], '8': [1,1,1,1,1,1,1], '9': [1,1,1,1,0,1,1]
+        };
+        const s = segments[digit] || [0,0,0,0,0,0,0];
+        return `<svg class="digit-svg" viewBox="0 0 65 110">
+            <path class="${s[0]?'on':''}" d="M10 5 L55 5 L50 12 L15 12 Z" />
+            <path class="${s[1]?'on':''}" d="M7 10 L12 15 L12 50 L5 55 Z" />
+            <path class="${s[2]?'on':''}" d="M58 10 L63 55 L56 50 L56 15 Z" />
+            <path class="${s[3]?'on':''}" d="M10 55 L15 50 L50 50 L55 55 L50 60 L15 60 Z" />
+            <path class="${s[4]?'on':''}" d="M7 60 L12 65 L12 100 L5 105 Z" />
+            <path class="${s[5]?'on':''}" d="M58 60 L63 105 L56 100 L56 65 Z" />
+            <path class="${s[6]?'on':''}" d="M10 105 L15 98 L50 98 L55 105 Z" />
+        </svg>`;
+    }
 
     function refreshData() {
-        // Tvoja URL (nechávam tú z minulého pokusu, skontroluj či je správna)
         const baseUrl = "https://script.google.com/macros/s/AKfycbxY4lXaenvrMR-tJpkcNIWyZRENHQLacS0Q_FBFBNNY81wF-W_Z1ThQBiqui11qislCSA/exec"; 
-        const fullUrl = baseUrl + "?action=dashboard&callback=handleData&t=" + new Date().getTime();
-
-        const oldScript = document.getElementById('jsonp-request');
-        if (oldScript) oldScript.remove();
-
         const script = document.createElement('script');
         script.id = 'jsonp-request';
-        script.src = fullUrl;
+        script.src = baseUrl + "?action=dashboard&callback=handleData&t=" + new Date().getTime();
         document.body.appendChild(script);
     }
 
     window.onload = refreshData;
+    setInterval(refreshData, 60000); // Auto-refresh každú minútu
 </script>
     
 </body>
