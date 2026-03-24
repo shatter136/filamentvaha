@@ -18,119 +18,38 @@
         .label-left { position: absolute; top: 250px; left: 35px; font-size: 14px; color: #40ffff; text-shadow: 0 0 8px #40ffff; width: 140px; }
         .label-right { position: absolute; top: 260px; right: 35px; color: #ffff00; font-size: 18px; text-shadow: 0 0 15px #ffff00; font-weight: bold; }
         .odo-label { margin-top: 25px; font-size: 14px; color: #44ffff; text-shadow: 0 0 5px #00ffff; }
-        .odo-box { border: 2px solid #ffff00; padding: 5px; display: flex; gap: 4px; background: #000; box-shadow: 0 0 20px rgba(255,255,0,0.3); }
+        .odo-box { border: 2px solid #ffff00; padding: 5px; display: flex; gap: 4px; background: #000; box-shadow: 0 0 20px rgba(255,255,0,0.3); min-width: 150px; min-height: 55px; }
         .odo-digit { width: 38px; height: 55px; background: #0a0a0a; border: 1px solid #333; color: #ffff00; font-size: 40px; text-align: center; font-weight: bold; line-height: 55px; text-shadow: 0 0 12px #ffff00; }
-        .warning-icon { position: absolute; bottom: 45px; left: 55px; font-size: 80px; color: #ff0000; display: none; text-shadow: 0 0 25px #ff0000, 0 0 50px #ff0000; animation: blink 0.7s infinite; z-index: 100; }
+        .warning-icon { position: absolute; bottom: 45px; left: 55px; font-size: 80px; color: #ff0000; display: none; text-shadow: 0 0 25px #ff0000; animation: blink 0.7s infinite; z-index: 100; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-        .refresh-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 8px 15px;
-    background: transparent;
-    border: 2px solid #00f3ff;
-    color: #00f3ff;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 5px;
-    box-shadow: 0 0 5px #00f3ff, inset 0 0 5px #00f3ff;
-    transition: all 0.3s ease;
-    z-index: 1000;
-}
-
-.refresh-btn:hover {
-    background: #00f3ff;
-    color: #000;
-    box-shadow: 0 0 20px #00f3ff, 0 0 40px #00f3ff;
-    text-shadow: none;
-}
-
-.refresh-btn:active {
-    transform: scale(0.95);
-}
+        .refresh-btn { position: fixed; bottom: 20px; right: 20px; padding: 8px 15px; background: transparent; border: 2px solid #00f3ff; color: #00f3ff; font-family: 'Courier New', monospace; cursor: pointer; z-index: 1000; }
     </style>
 </head>
 <body>
     <button class="refresh-btn" onclick="refreshData()">Sync Data</button>
-    <div class="warning-icon" id="alert">!</div>
+    <div id="alert" class="warning-icon">!</div>
     <div class="container">
         <div class="header">FILAMENT VÁHA</div>
-        <div class="bar-wrap" id="bar"></div>
+        <div id="bar" class="bar-wrap"></div>
         <div class="scale-labels"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span></div>
-        <div class="label-left" id="material">---</div>
-        <div class="weight-box" id="weight"></div>
+        
+        <div id="material" class="label-left">---</div>
+        <div id="weight" class="weight-box"></div>
         <div class="unit-g">G</div>
-        <div class="label-right" id="spoolId">---</div>
-        <div class="odo-label">dlzka</div>
+        <div id="spoolId" class="label-right">---</div>
+        
+        <div class="odo-label">DLZKA</div>
         <div style="display: flex; align-items: center; gap: 12px;">
-            <div class="odo-box" id="odo"></div>
+            <div id="odo" class="odo-box"></div>
             <div style="color: #1a75ff; font-size: 28px; font-weight: bold; text-shadow: 0 0 15px #1a75ff;">M</div>
         </div>
     </div>
 
- <script>
-    // Táto funkcia opraví slovenské čiarky na body, aby JS nezlyhal
+<script>
     function parseSlovakFloat(val) {
         if (typeof val === 'number') return val;
         if (!val) return 0;
-        let cleaned = val.toString().replace(',', '.').replace(/[^\d.]/g, '');
-        return parseFloat(cleaned) || 0;
-    }
-
-    function handleData(data) {
-        console.log("Dáta z Google:", data);
-
-        try {
-            // Prevedieme slovenské formáty na čísla, ktorým JS rozumie
-            const weight = parseSlovakFloat(data.weight);
-            const length = parseSlovakFloat(data.length);
-
-            // 1. TEXTY
-            document.getElementById('material').innerText = data.material || "---";
-            document.getElementById('spoolId').innerText = data.id || "---";
-
-            // 2. VÁHA (SVG)
-            const weightVal = Math.round(weight).toString().padStart(3, '0');
-            const weightContainer = document.getElementById('weight');
-            weightContainer.innerHTML = '';
-            [...weightVal].forEach(num => {
-                weightContainer.innerHTML += createDigitSVG(num);
-            });
-
-            // 3. DĹŽKA (ODO)
-            const lengthVal = Math.round(length).toString().padStart(4, '0');
-            const odoContainer = document.getElementById('odo');
-            odoContainer.innerHTML = ''; 
-            [...lengthVal].forEach(num => {
-                const div = document.createElement('div');
-                div.className = 'odo-digit';
-                div.innerText = num;
-                odoContainer.appendChild(div);
-            });
-
-            // 4. STUPNICA
-            const barContainer = document.getElementById('bar');
-            barContainer.innerHTML = '';
-            const percent = Math.min(Math.max((weight / 1000) * 100, 0), 100);
-            for (let i = 0; i < 20; i++) {
-                const seg = document.createElement('div');
-                seg.className = 'seg' + (i < (percent / 5) ? ' on' : '');
-                seg.style.height = (20 + i * 3) + 'px';
-                barContainer.appendChild(seg);
-            }
-
-            // 5. ALERT
-            const alertIcon = document.getElementById('alert');
-            alertIcon.style.display = (weight > 0 && weight < 50) ? 'block' : 'none';
-
-            console.log("Vykreslené s váhou:", weight);
-        } catch (err) {
-            console.error("Chyba pri spracovaní:", err);
-        }
+        return parseFloat(val.toString().replace(',', '.')) || 0;
     }
 
     function createDigitSVG(digit) {
@@ -151,18 +70,43 @@
         </svg>`;
     }
 
-    function refreshData() {
-        // SEM DAJ SVOJU AKTUÁLNU URL Z GOOGLE DEPLOYMENTU
-        const baseUrl = "https://script.google.com/macros/s/AKfycbwCFgnrn0Krsxj7VKC1QLbTWl_GW5ATGc_zF5Nw7k7RWobid6xoNBVKQGFqGxuEzzLTvA/exec"; 
-        const script = document.createElement('script');
-        script.id = 'jsonp-request';
-        script.src = baseUrl + "?action=dashboard&callback=handleData&t=" + new Date().getTime();
-        document.body.appendChild(script);
+    function handleData(data) {
+        console.log("Dáta prijaté:", data);
+        const w = parseSlovakFloat(data.weight);
+        const l = parseSlovakFloat(data.length);
+
+        document.getElementById('material').innerText = data.material || "---";
+        document.getElementById('spoolId').innerText = data.id || "---";
+
+        // Váha
+        const wStr = Math.round(w).toString().padStart(3, '0');
+        document.getElementById('weight').innerHTML = [...wStr].map(n => createDigitSVG(n)).join('');
+
+        // ODO
+        const lStr = Math.round(l).toString().padStart(4, '0');
+        document.getElementById('odo').innerHTML = [...lStr].map(n => `<div class="odo-digit">${n}</div>`).join('');
+
+        // Bar
+        const bar = document.getElementById('bar');
+        bar.innerHTML = '';
+        const pct = Math.min((w / 1000) * 100, 100);
+        for(let i=0; i<20; i++) {
+            const s = document.createElement('div');
+            s.className = 'seg' + (i < (pct/5) ? ' on' : '');
+            s.style.height = (20 + i*3) + 'px';
+            bar.appendChild(s);
+        }
+
+        document.getElementById('alert').style.display = (w > 0 && w < 50) ? 'block' : 'none';
     }
 
+    function refreshData() {
+        const url = "https://script.google.com/macros/s/AKfycbwCFgnrn0Krsxj7VKC1QLbTWl_GW5ATGc_zF5Nw7k7RWobid6xoNBVKQGFqGxuEzzLTvA/exec";
+        const s = document.createElement('script');
+        s.src = url + "?action=dashboard&callback=handleData&t=" + Date.now();
+        document.body.appendChild(s);
+    }
     window.onload = refreshData;
-    setInterval(refreshData, 60000);
 </script>
-    
 </body>
 </html>
