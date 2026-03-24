@@ -9,7 +9,7 @@
             --bg: #000;
             --cyan: #00f2ff;
             --yellow: #f4d03f;
-            --glow-c: 0 0 10px var(--cyan), 0 0 20px rgba(0,242,255,0.8);
+            --glow-c: 0 0 12px var(--cyan), 0 0 25px rgba(0,242,255,0.7);
             --glow-y: 0 0 15px var(--yellow), 0 0 35px rgba(244,208,63,0.9);
         }
 
@@ -20,7 +20,7 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            height: 100vh; 
+            min-height: 100vh; 
             margin: 0; 
         }
         
@@ -30,27 +30,28 @@
             border: 4px solid var(--cyan); 
             box-shadow: var(--glow-c), inset var(--glow-c); 
             background: #000;
+            position: relative;
         }
 
         .title { 
             text-align: center; 
-            font-size: 1.5rem; 
-            letter-spacing: 10px; 
-            margin-bottom: 20px; 
+            font-size: 1.6rem; 
+            letter-spacing: 12px; 
+            margin-bottom: 25px; 
             text-shadow: var(--glow-c); 
         }
 
-        /* PROGRESS BAR AREA */
+        /* PROGRESS BAR */
         .bar-section { margin-bottom: 40px; }
         .bar-wrapper { 
             display: flex; 
             align-items: flex-end; 
             gap: 4px; 
-            height: 80px; 
-            border-bottom: 2px solid var(--cyan);
+            height: 85px; 
+            border-bottom: 3px solid var(--cyan);
             padding-bottom: 10px;
         }
-        .seg { flex: 1; background: #111; transition: 0.2s; }
+        .seg { flex: 1; background: #111; transition: 0.3s; }
         .seg.on { background: var(--yellow); box-shadow: var(--glow-y); }
         
         .scale { 
@@ -67,18 +68,20 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            margin: 40px 0; 
+            margin: 30px 0;
+            height: 180px;
         }
         
         #weight-val { 
             font-family: 'VT323', monospace; 
-            font-size: 12rem; 
+            font-size: 13rem; 
             color: var(--yellow); 
             text-shadow: var(--glow-y); 
-            line-height: 0.8;
+            line-height: 0.7;
+            margin: 0;
         }
 
-        .side-info { width: 220px; font-size: 1rem; line-height: 1.6; }
+        .side-info { width: 220px; font-size: 1rem; line-height: 1.4; }
         .yellow-glow { color: var(--yellow); text-shadow: var(--glow-y); font-weight: 900; }
 
         /* ODOMETER */
@@ -87,21 +90,22 @@
             display: flex; 
             justify-content: center; 
             gap: 8px; 
-            margin-top: 10px; 
+            margin-top: 12px; 
         }
         .digit { 
             border: 3px solid var(--yellow); 
-            padding: 8px 14px; 
+            padding: 10px 14px; 
             font-size: 2.8rem; 
             color: var(--yellow); 
             text-shadow: var(--glow-y); 
-            box-shadow: inset 0 0 15px var(--yellow);
+            box-shadow: inset 0 0 15px rgba(244,208,63,0.5);
             background: #050505;
+            min-width: 35px;
         }
 
         button { 
             display: block; 
-            margin: 30px auto 0; 
+            margin: 35px auto 0; 
             background: none; 
             border: 2px solid #ff00ff; 
             color: #ff00ff; 
@@ -109,7 +113,7 @@
             cursor: pointer; 
             text-shadow: 0 0 10px #ff00ff; 
             font-family: inherit;
-            text-transform: uppercase;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -130,18 +134,18 @@
         <div class="side-info" id="mat-label">NAČÍTAM...</div>
         
         <div style="text-align: center;">
-            <div id="weight-val">---</div>
+            <div id="weight-val">0</div>
             <div style="font-size: 1.8rem; color: var(--cyan); text-shadow: var(--glow-c); margin-top: 5px;">GRAMS</div>
         </div>
 
         <div class="side-info" style="text-align: right;">
-            <div>LENGTH: <span id="data-len">0</span> M</div>
-            <div class="yellow-glow" id="data-id" style="margin-top: 10px;">ID: ---</div>
+            <div style="margin-bottom: 10px;">LENGTH: <span id="data-len" class="yellow-glow">0</span> M</div>
+            <div class="yellow-glow" id="data-id">ID: ---</div>
         </div>
     </div>
 
     <div class="odo-container">
-        <div style="font-size: 0.8rem; letter-spacing: 5px; opacity: 0.8;">TOTAL FILAMENT USED</div>
+        <div style="font-size: 0.8rem; letter-spacing: 5px; opacity: 0.7;">TOTAL FILAMENT USED</div>
         <div class="odo-box" id="odometer"></div>
     </div>
 
@@ -151,31 +155,32 @@
 <script>
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxFZl_JAITJGkdodcTo1ZBF6Do-cjigonJjrTJUDsOG8AWZL9HAmUUWOAd9NkwIBMCYHtOqVTZ9KV7/pub?gid=233832092&single=true&output=csv";
 
-    // Generovanie baru
+    // Vygenerovanie baru (40 segmentov)
     const bar = document.getElementById('bar');
     for(let i=0; i<40; i++) {
         let s = document.createElement('div');
         s.className = 'seg';
-        s.style.height = (20 + (i * 1.5)) + 'px';
+        s.style.height = (20 + (i * 1.6)) + 'px';
         bar.appendChild(s);
     }
 
     async function updateData() {
         try {
-            const res = await fetch(CSV_URL + "&t=" + Date.now());
+            const res = await fetch(CSV_URL + "&cache=" + Date.now());
             const text = await res.text();
-            const rows = text.trim().split(/\r?\n/);
             
-            // DÔLEŽITÉ: Tvoj CSV používa bodkočiarku ako oddeľovač!
+            // Rozdelíme riadky
+            const rows = text.trim().split(/\r?\n/);
             const lastRow = rows[rows.length - 1];
+
+            // KLÚČOVÁ ZMENA: Splitujeme bodkočiarkou (;) namiesto čiarky
             const col = lastRow.split(';').map(c => c.replace(/"/g, '').trim());
 
-            // Mapovanie stĺpcov z tvojho linku:
-            // A(0)=ID, C(2)=Mat, E(4)=Váha, F(5)=Dĺžka
+            // Mapovanie: A=0(ID), C=2(Mat), E=4(Váha), F=5(Dĺžka)
             const idVal = col[0] || "---";
             const matVal = col[2] || "NEZNÁMY";
             
-            // Oprava slovenskej čiarky na bodku pre výpočty
+            // Oprava slovenskej čiarky na bodku
             const vahaRaw = (col[4] || "0").replace(',', '.');
             const lenRaw = (col[5] || "0").replace(',', '.');
 
@@ -195,23 +200,21 @@
                 odo.innerHTML += `<div class="digit">${n}</div>`;
             });
 
-            // Progress Bar (Predpoklad max 1000g)
+            // Progress Bar (Max 1000g)
             const segs = document.querySelectorAll('.seg');
             const ratio = vahaNum / 1000;
             segs.forEach((s, i) => {
                 s.classList.toggle('on', i < ratio * 40);
             });
 
-            console.log("Dáta prijaté:", {vahaNum, matVal});
-
         } catch (e) {
             console.error("Chyba:", e);
-            document.getElementById('mat-label').innerText = "CHYBA PREPOJENIA";
+            document.getElementById('mat-label').innerText = "CHYBA SPOJENIA";
         }
     }
 
     updateData();
-    setInterval(updateData, 10000);
+    setInterval(updateData, 10000); // 10s auto-refresh
 </script>
 </body>
 </html>
