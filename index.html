@@ -2,7 +2,7 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <title>PRUSA3S FILAMENT</title>
+    <title>GSI FILAMENT DASHBOARD</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -10,8 +10,8 @@
             --cyan: #00f2ff;
             --yellow: #f4d03f;
             --blue-border: #007fff;
-            --glow-c: 0 0 10px var(--cyan), 0 0 20px rgba(0,242,255,0.5);
-            --glow-y: 0 0 15px var(--yellow), 0 0 30px rgba(244,208,63,0.6);
+            --glow-c: 0 0 10px var(--cyan);
+            --glow-y: 0 0 15px var(--yellow), 0 0 30px rgba(244,208,63,0.5);
         }
 
         body { 
@@ -30,20 +30,11 @@
             width: 700px; 
             padding: 40px; 
             border: 3px solid var(--blue-border); 
-            box-shadow: 0 0 25px rgba(0,127,255,0.4), inset 0 0 15px rgba(0,127,255,0.2); 
-            background: radial-gradient(circle, #0a0a0f 0%, #000 100%);
+            box-shadow: 0 0 20px rgba(0,127,255,0.4); 
+            background: #000;
         }
 
-        .header-text {
-            text-align: center;
-            font-size: 1rem;
-            letter-spacing: 10px;
-            margin-bottom: 20px;
-            color: var(--blue-border);
-        }
-
-        /* PROGRESS BAR - TACHOMETER */
-        .bar-section { margin-bottom: 30px; }
+        /* PROGRESS BAR */
         .bar-wrapper { 
             display: flex; 
             align-items: flex-end; 
@@ -51,33 +42,15 @@
             height: 80px; 
             border-bottom: 2px solid var(--cyan); 
             padding-bottom: 8px; 
+            margin-bottom: 10px;
         }
-        .seg { 
-            flex: 1; 
-            background: #111; 
-            transition: 0.3s; 
-        }
-        .seg.on { 
-            background: var(--yellow); 
-            box-shadow: var(--glow-y); 
-        }
+        .seg { flex: 1; background: #111; transition: 0.3s; }
+        .seg.on { background: var(--yellow); box-shadow: var(--glow-y); }
         
-        .scale { 
-            display: flex; 
-            justify-content: space-between; 
-            margin-top: 10px; 
-            font-size: 0.8rem; 
-            text-shadow: var(--glow-c);
-        }
+        .scale { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 30px; }
 
-        /* MAIN DISPLAY */
-        .main-display { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin: 30px 0;
-            height: 180px;
-        }
+        /* DATA DISPLAY */
+        .main { display: flex; justify-content: space-between; align-items: center; margin: 30px 0; }
         
         #weight-val { 
             font-family: 'VT323', monospace; 
@@ -85,109 +58,80 @@
             color: var(--yellow); 
             text-shadow: var(--glow-y); 
             line-height: 0.8;
-            margin: 0;
         }
 
-        .side-info { 
-            width: 200px; 
-            font-size: 0.9rem; 
-            line-height: 1.6;
-        }
-
-        .yellow-glow { 
-            color: var(--yellow); 
-            text-shadow: var(--glow-y); 
-            font-weight: 900; 
-        }
+        .side { width: 200px; font-size: 0.9rem; line-height: 1.5; }
+        .yellow { color: var(--yellow); text-shadow: var(--glow-y); }
 
         /* ODOMETER */
-        .odo-container { text-align: center; margin-top: 20px; }
-        .odo-box { 
-            display: inline-flex; 
-            justify-content: center; 
-            gap: 6px; 
-            margin-top: 12px; 
-            border: 2px solid var(--yellow);
-            padding: 10px;
-            background: #050505;
-            box-shadow: inset 0 0 10px rgba(244,208,63,0.3);
-        }
+        .odo-box { display: flex; justify-content: center; gap: 6px; margin-top: 15px; }
         .digit { 
-            font-size: 2.8rem; 
-            color: var(--yellow); 
-            text-shadow: var(--glow-y); 
-            min-width: 35px;
-            text-align: center;
+            border: 2px solid var(--yellow); padding: 8px 12px; 
+            font-size: 2.5rem; color: var(--yellow); background: #080808; 
         }
-
-        #mat-label { color: var(--cyan); text-shadow: var(--glow-c); }
     </style>
 </head>
 <body>
 
 <div class="dashboard">
-    <div class="header-text">FILAMENT STATUS</div>
+    <div style="text-align: center; letter-spacing: 10px; margin-bottom: 20px; color: var(--blue-border);">FILAMENT STATUS</div>
 
-    <div class="bar-section">
-        <div class="bar-wrapper" id="bar"></div>
-        <div class="scale">
-            <span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100</span>
-        </div>
-    </div>
+    <div class="bar-wrapper" id="bar-container"></div>
+    <div class="scale"><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100</span></div>
 
-    <div class="main-display">
-        <div class="side-info" id="mat-label">NAČÍTAM DÁTA...</div>
+    <div class="main">
+        <div class="side" id="mat-label">NAČÍTAM...</div>
         
         <div style="text-align: center;">
             <div id="weight-val">0</div>
-            <div style="font-size: 1.5rem; color: var(--cyan); text-shadow: var(--glow-c); letter-spacing: 5px;">GRAMS</div>
+            <div style="font-size: 1.5rem; letter-spacing: 5px;">GRAMS</div>
         </div>
 
-        <div class="side-info" style="text-align: right;">
-            <div>LENGTH: <span id="data-len" class="yellow-glow">0</span> M</div>
-            <div class="yellow-glow" id="data-id" style="margin-top: 10px;">ID: ---</div>
+        <div class="side" style="text-align: right;">
+            <div>LENGTH: <span id="data-len" class="yellow">0</span> M</div>
+            <div id="data-id" class="yellow" style="margin-top: 10px;">ID: ---</div>
         </div>
     </div>
 
-    <div class="odo-container">
-        <div style="font-size: 0.7rem; letter-spacing: 4px; opacity: 0.6;">TOTAL FILAMENT USED</div>
+    <div style="text-align: center;">
+        <div style="font-size: 0.7rem; letter-spacing: 4px; opacity: 0.5;">TOTAL FILAMENT USED</div>
         <div class="odo-box" id="odometer"></div>
     </div>
 </div>
 
 <script>
-    // TVOJ LINK S PARAMETROM PRE DASHBOARD
-    const API_URL = "https://script.google.com/macros/s/AKfycbyRzoNmzArTIUphL5XrawZLTNykbhKIFY903arPmr5kbebUEYECpZZO94k-QnTUohFRPg/exec?action=dashboard";
+    // SEM DAJ SVOJU NOVÚ URL PO REDEPLOYMENTE
+    const API_URL = "https://script.google.com/macros/s/AKfycbzBxZLbYOGstlSyBxnw6PMK7Sx8IvGb47kFxs3CP4oTOcQG2UxsR5KFqRo6zEJ_NfX9kw/exec?action=dashboard";
 
-    // Vygenerovanie 35 segmentov progres baru s narastajúcou výškou
-    const bar = document.getElementById('bar');
+    // Vygenerovanie 35 segmentov
+    const barCont = document.getElementById('bar-container');
     for(let i=0; i<35; i++) {
         let s = document.createElement('div');
         s.className = 'seg';
-        s.style.height = (20 + (i * 1.8)) + 'px';
-        bar.appendChild(s);
+        s.style.height = (20 + (i * 2)) + 'px';
+        barCont.appendChild(s);
     }
 
     async function updateData() {
         try {
-            const res = await fetch(API_URL + "&cache=" + Date.now());
+            const res = await fetch(API_URL + "&t=" + Date.now());
             const data = await res.json();
             
             if (!data.rows || data.rows.length === 0) return;
 
-            // Zoberieme posledný riadok z tabuľky PREHLAD
+            // Posledný riadok z tabuľky
             const lastRow = data.rows[data.rows.length - 1];
 
-            // Namapovanie stĺpcov (A=0:ID, C=2:Mat, E=4:Váha, F=5:Dĺžka)
+            // A=0:ID, C=2:Material, E=4:Vaha, F=5:Dlzka
             const idVal = lastRow[0] || "---";
             const matVal = lastRow[2] || "NEZNÁMY";
             
-            // Ošetrenie čísel (výmena slovenskej čiarky za bodku)
-            const vahaRaw = lastRow[4] ? lastRow[4].toString().replace(',', '.') : "0";
-            const lenRaw = lastRow[5] ? lastRow[5].toString().replace(',', '.') : "0";
+            // Ošetrenie čiarky z Google Sheets
+            const vahaStr = lastRow[4] ? lastRow[4].toString().replace(',', '.') : "0";
+            const lenStr = lastRow[5] ? lastRow[5].toString().replace(',', '.') : "0";
 
-            const vahaNum = Math.round(parseFloat(vahaRaw)) || 0;
-            const lenNum = Math.round(parseFloat(lenRaw)) || 0;
+            const vahaNum = Math.round(parseFloat(vahaStr)) || 0;
+            const lenNum = Math.round(parseFloat(lenStr)) || 0;
 
             // UI Update
             document.getElementById('weight-val').innerText = vahaNum;
@@ -195,27 +139,24 @@
             document.getElementById('data-len').innerText = lenNum;
             document.getElementById('data-id').innerText = "ID: " + idVal;
 
-            // Odometer (6 miest)
+            // Bar Update (max 1000g)
+            const segs = document.querySelectorAll('.seg');
+            const ratio = vahaNum / 1000;
+            segs.forEach((s, i) => s.classList.toggle('on', i < ratio * 35));
+
+            // Odometer Update
             const odo = document.getElementById('odometer');
             odo.innerHTML = '';
             lenNum.toString().padStart(6, '0').split('').forEach(n => {
                 odo.innerHTML += `<div class="digit">${n}</div>`;
             });
 
-            // Progress Bar (Max nastavený na 1000g)
-            const segs = document.querySelectorAll('.seg');
-            const ratio = vahaNum / 1000;
-            segs.forEach((s, i) => {
-                s.classList.toggle('on', i < ratio * 35);
-            });
-
         } catch (e) {
-            console.error("Chyba:", e);
-            document.getElementById('mat-label').innerText = "API CONNECTION ERROR";
+            console.error(e);
+            document.getElementById('mat-label').innerText = "CONNECTION ERROR";
         }
     }
 
-    // Prvé spustenie a potom každých 15 sekúnd
     updateData();
     setInterval(updateData, 15000);
 </script>
