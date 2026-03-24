@@ -270,7 +270,7 @@ for (let i = 0; i < 20; i++) {
         });
 
         // Update dĺžky (odometer štýl)
-        const lengthStr = Math.round(data.length).toString().padStart(6, '0');
+        const lengthStr = Math.round(data.length).toString().padStart(4, '0');
         const odomContainer = document.getElementById('length-val');
         odomContainer.innerHTML = lengthStr.split('').map(d => `<div class="digit">${d}</div>`).join('') + '<span style="color:var(--neon-blue); margin-left:5px; align-self:center">M</span>';
     }
