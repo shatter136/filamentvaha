@@ -2,84 +2,109 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <title>GSI FILAMENT MK3S</title>
+    <title>PRUSA3S FILAMENT</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root { --cyan: #00f2ff; --yellow: #f4d03f; --bg: #000; }
-        body { background: var(--bg); color: var(--cyan); font-family: 'Orbitron', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .dashboard { width: 650px; padding: 30px; border: 2px solid var(--cyan); box-shadow: 0 0 15px var(--cyan); position: relative; }
+        body { background: var(--bg); color: var(--cyan); font-family: 'Orbitron', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-transform: uppercase; }
         
-        /* PROGRESS BAR */
-        .bar-wrapper { display: flex; align-items: flex-end; gap: 4px; height: 60px; border-bottom: 2px solid var(--cyan); padding-bottom: 5px; margin-bottom: 10px; }
-        .seg { flex: 1; background: #222; transition: 0.3s; height: 100%; }
-        .seg.on { background: var(--yellow); box-shadow: 0 0 10px var(--yellow); }
-        .scale { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 20px; }
+        .dashboard { 
+            width: 650px; padding: 40px; border: 3px solid var(--cyan); 
+            box-shadow: 0 0 20px var(--cyan), inset 0 0 10px var(--cyan); 
+            background: #000;
+        }
 
-        /* DATA */
+        /* PROGRESS BAR - TACHOMETER */
+        .bar-wrapper { 
+            display: flex; align-items: flex-end; gap: 4px; height: 70px; 
+            border-bottom: 2px solid var(--cyan); padding-bottom: 8px; margin-bottom: 10px; 
+        }
+        .seg { flex: 1; background: #151515; transition: 0.3s; }
+        .seg.on { background: var(--yellow); box-shadow: 0 0 12px var(--yellow); }
+        
+        .scale { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 900; margin-bottom: 30px; }
+
+        /* HLAVNÝ DISPLEJ */
         .main { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
-        #weight-val { font-family: 'VT323', monospace; font-size: 10rem; color: var(--yellow); text-shadow: 0 0 15px var(--yellow); line-height: 0.8; }
-        .side { width: 150px; font-size: 0.8rem; }
+        
+        #weight-val { 
+            font-family: 'VT323', monospace; font-size: 11rem; 
+            color: var(--yellow); text-shadow: 0 0 20px var(--yellow); 
+            line-height: 0.8; margin: 0;
+        }
+
+        .side-label { width: 180px; font-size: 0.9rem; line-height: 1.4; }
 
         /* ODOMETER */
-        .odo { display: flex; justify-content: center; gap: 5px; margin-top: 10px; }
-        .digit { border: 1px solid var(--yellow); padding: 5px 10px; font-size: 2rem; color: var(--yellow); background: #111; }
+        .odo { display: flex; justify-content: center; gap: 6px; margin-top: 15px; }
+        .digit { 
+            border: 2px solid var(--yellow); padding: 8px 12px; 
+            font-size: 2.5rem; color: var(--yellow); background: #080808; 
+            box-shadow: inset 0 0 10px rgba(244, 208, 63, 0.3);
+        }
     </style>
 </head>
 <body>
 
 <div class="dashboard">
-    <div style="text-align:center; font-size: 1.2rem; letter-spacing: 5px; margin-bottom: 15px;">FILAMENT VÁHA</div>
-    
+    <div style="text-align: center; letter-spacing: 8px; margin-bottom: 20px; opacity: 0.8;">FILAMENT VÁHA</div>
+
     <div class="bar-wrapper" id="bar"></div>
     <div class="scale"><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100</span></div>
 
     <div class="main">
-        <div class="side" id="mat-label">NAČÍTAM...</div>
-        <div style="text-align:center;"><div id="weight-val">0</div><div style="letter-spacing:5px;">GRAMS</div></div>
-        <div class="side" style="text-align:right;">
-            <div>LEN: <span id="data-len">0</span> M</div>
-            <div id="data-id" style="color:var(--yellow); margin-top:5px;">ID: ---</div>
+        <div class="side-label" id="mat-label">NAČÍTAM...</div>
+        
+        <div style="text-align: center;">
+            <div id="weight-val">0</div>
+            <div style="font-size: 1.5rem; letter-spacing: 5px; color: var(--cyan);">GRAMS</div>
+        </div>
+
+        <div class="side-label" style="text-align: right;">
+            <div>LENGTH: <span id="data-len">0</span> M</div>
+            <div id="data-id" style="color: var(--yellow); margin-top: 10px;">ID: ---</div>
         </div>
     </div>
 
-    <div style="text-align:center; font-size:0.7rem;">TOTAL LENGTH</div>
-    <div class="odo" id="odometer"></div>
-    
-    <button onclick="updateData()" style="display:block; margin: 20px auto; background:none; border: 1px solid #f0f; color:#f0f; cursor:pointer;">REFRESH</button>
+    <div style="text-align: center;">
+        <div style="font-size: 0.7rem; letter-spacing: 3px; opacity: 0.6;">TOTAL FILAMENT USED</div>
+        <div class="odo" id="odometer"></div>
+    </div>
 </div>
 
 <script>
-    // SEM DAJ TVOJU NOVÚ URL Z APPS SCRIPTU
     const API_URL = "https://script.google.com/macros/s/AKfycbwwQmqL7IUlW4JIm7yDZcQ2fDztvYAk5waxXmKJVfJOuIV2VKQzJsHYB2sisQ5-tvkafg/exec";
 
-    // Vytvorenie 30 segmentov pre bar
+    // Vygenerovanie 30 segmentov baru s narastajúcou výškou
     const bar = document.getElementById('bar');
     for(let i=0; i<30; i++) {
         let s = document.createElement('div');
         s.className = 'seg';
-        s.style.height = (10 + (i * 1.5)) + 'px';
+        s.style.height = (15 + (i * 1.8)) + 'px';
         bar.appendChild(s);
     }
 
     async function updateData() {
         try {
-            const res = await fetch(API_URL);
+            const res = await fetch(API_URL + "?t=" + Date.now());
             const data = await res.json();
             
-            // Oprava slovenskej čiarky v čísle
+            // Oprava slovenskej čiarky z Google Sheets
             const vaha = Math.round(parseFloat(data.vaha.toString().replace(',', '.'))) || 0;
             const len = Math.round(parseFloat(data.dlzka.toString().replace(',', '.'))) || 0;
 
+            // Update textových polí
             document.getElementById('weight-val').innerText = vaha;
             document.getElementById('mat-label').innerText = data.material;
             document.getElementById('data-len').innerText = len;
             document.getElementById('data-id').innerText = "ID: " + data.id;
 
-            // Update baru (predpoklad max 1000g)
+            // Update Baru (predpokladáme 1000g cievku)
             const segs = document.querySelectorAll('.seg');
-            segs.forEach((s, i) => s.classList.toggle('on', i < (vaha/1000) * 30));
+            const activeCount = Math.min(30, Math.floor((vaha / 1000) * 30));
+            segs.forEach((s, i) => s.classList.toggle('on', i < activeCount));
 
-            // Odometer
+            // Update Odometra (6 miest)
             const odo = document.getElementById('odometer');
             odo.innerHTML = '';
             len.toString().padStart(6, '0').split('').forEach(n => {
@@ -87,13 +112,13 @@
             });
 
         } catch (e) {
-            document.getElementById('mat-label').innerText = "API ERROR - SKONTROLUJ LINK";
             console.error(e);
+            document.getElementById('mat-label').innerText = "API ERROR";
         }
     }
 
     updateData();
-    setInterval(updateData, 30000);
+    setInterval(updateData, 20000); // Refresh každých 20s
 </script>
 </body>
 </html>
