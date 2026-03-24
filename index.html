@@ -27,16 +27,18 @@
         #dashboard {
     background-color: var(--bg-dark);
     width: 450px;
-    height: 380px; /* Trochu sme ho zvýšili, aby bolo miesto */
+    height: 380px;
     border: 4px solid var(--neon-blue);
-    box-shadow: 0 0 20px var(--neon-blue), inset 0 0 10px var(--neon-blue); /* Vonkajší aj vnútorný glow */
+    /* Silnejší tyrkysový glow */
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.5), inset 0 0 15px rgba(0, 212, 255, 0.3);
     padding: 20px;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     color: var(--neon-blue);
-    text-shadow: 0 0 8px var(--neon-blue); /* Glow pre všetky tyrkysové texty */
+    /* Glow pre všetky tyrkysové texty */
+    text-shadow: 0 0 10px var(--neon-blue), 0 0 20px rgba(0, 212, 255, 0.5);
     text-transform: uppercase;
 }
 
