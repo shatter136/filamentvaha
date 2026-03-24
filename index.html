@@ -22,9 +22,40 @@
         .odo-digit { width: 38px; height: 55px; background: #0a0a0a; border: 1px solid #333; color: #ffff00; font-size: 40px; text-align: center; font-weight: bold; line-height: 55px; text-shadow: 0 0 12px #ffff00; }
         .warning-icon { position: absolute; bottom: 45px; left: 55px; font-size: 80px; color: #ff0000; display: none; text-shadow: 0 0 25px #ff0000, 0 0 50px #ff0000; animation: blink 0.7s infinite; z-index: 100; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .refresh-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 8px 15px;
+    background: transparent;
+    border: 2px solid #00f3ff;
+    color: #00f3ff;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 0 5px #00f3ff, inset 0 0 5px #00f3ff;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.refresh-btn:hover {
+    background: #00f3ff;
+    color: #000;
+    box-shadow: 0 0 20px #00f3ff, 0 0 40px #00f3ff;
+    text-shadow: none;
+}
+
+.refresh-btn:active {
+    transform: scale(0.95);
+}
     </style>
 </head>
 <body>
+    <button class="refresh-btn" onclick="refreshData()">Sync Data</button>
     <div class="warning-icon" id="alert">!</div>
     <div class="container">
         <div class="header">FILAMENT VÁHA</div>
@@ -41,74 +72,59 @@
         </div>
     </div>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxY4lXaenvrMR-tJpkcNIWyZRENHQLacS0Q_FBFBNNY81wF-W_Z1ThQBiqui11qislCSA/exec";
+   <script>
+    // Táto funkcia spracuje dáta, ktoré vráti App Script (JSONP)
+    function handleData(data) {
+        console.log("Prijaté dáta:", data);
         
-        const segments = { 
-            '0': [1,1,1,0,1,1,1], '1': [0,0,1,0,0,1,0], '2': [1,0,1,1,1,0,1], '3': [1,0,1,1,0,1,1], 
-            '4': [0,1,1,1,0,1,0], '5': [1,1,0,1,0,1,1], '6': [1,1,0,1,1,1,1], '7': [1,0,1,0,0,1,0], 
-            '8': [1,1,1,1,1,1,1], '9': [1,1,1,1,0,1,1], ' ': [0,0,0,0,0,0,0] 
-        };
-
-        function createDigitSVG(num) {
-            const active = segments[num] || segments[' '];
-            return `<svg viewBox="0 0 60 100" class="digit-svg">
-                <path class="${active[0]?'on':''}" d="M10,5 L50,5 L45,15 L15,15 Z" />
-                <path class="${active[1]?'on':''}" d="M5,10 L5,45 L15,40 L15,15 Z" />
-                <path class="${active[2]?'on':''}" d="M55,10 L55,45 L45,40 L45,15 Z" />
-                <path class="${active[3]?'on':''}" d="M10,45 L50,45 L45,55 L15,55 Z" />
-                <path class="${active[4]?'on':''}" d="M5,55 L5,90 L15,85 L15,60 Z" />
-                <path class="${active[5]?'on':''}" d="M55,55 L55,90 L45,85 L45,60 Z" />
-                <path class="${active[6]?'on':''}" d="M10,85 L50,85 L45,95 L15,95 Z" />
-            </svg>`;
+        // Aktualizácia hodnôt na stránke (používam ID z tvojho pôvodného webu)
+        // Ak máš v HTML iné ID, len ich tu prepíš
+        if (document.getElementById('weight-value')) {
+            document.getElementById('weight-value').innerText = data.weight;
         }
-
-        window.handleData = function(data) {
-    // 1. Skontrolujeme, či dáta vôbec prišli v poli "rows" (ako tečú zo stránky)
-    if (!data || !data.rows || data.rows.length === 0) {
-        console.error("Dáta z tabuľky neprišli alebo sú prázdne.");
-        return;
+        if (document.getElementById('length-value')) {
+            document.getElementById('length-value').innerText = data.length;
+        }
+        if (document.getElementById('material-name')) {
+            document.getElementById('material-name').innerText = data.material;
+        }
+        if (document.getElementById('filament-id')) {
+            document.getElementById('filament-id').innerText = data.id;
+        }
+        
+        // Odstránime "loading" efekt, ak by si nejaký mal
+        console.log("Dashboard aktualizovaný.");
     }
 
-    // 2. Tvoj skript posiela polia, preto musíme brať konkrétny stĺpec podla tabuľky
-    const poslednyRiadok = data.rows[data.rows.length - 1]; // Berieme posledný záznam
-    const vahaZTabulky = poslednyRiadok[4]; // 5. stĺpec (index 4)
-    const dlzkaZTabulky = poslednyRiadok[5]; // 6. stĺpec (index 5)
-    const materialZTabulky = poslednyRiadok[2]; // 3. stĺpec (index 2)
-    const idZTabulky = poslednyRiadok[0]; // 1. stĺpec (index 0)
+    // Hlavná funkcia na načítanie dát
+    function refreshData() {
+        console.log("Ťahám nové dáta...");
+        
+        // TVOJA URL - doplň si tam tú svoju reálnu adresu!
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbxY4lXaenvrMR-tJpkcNIWyZRENHQLacS0Q_FBFBNNY81wF-W_Z1ThQBiqui11qislCSA/exec"; 
+        
+        // Musíme pridať ?action=dashboard, aby tvoj App Script prešiel cez IF podmienku
+        const fullUrl = scriptUrl + "?action=dashboard&callback=handleData&t=" + new Date().getTime();
+        
+        // Vytvoríme script element (JSONP princíp)
+        const oldScript = document.getElementById('jsonp-script');
+        if (oldScript) oldScript.remove(); // Vymažeme starý pokus, ak tam bol
 
-    // 3. VÁHA
-    const wVal = Math.round(parseFloat(vahaZTabulky)) || 0;
-    const wStr = wVal.toString().padStart(3, ' ');
-    document.getElementById('weight').innerHTML = wStr.split('').map(createDigitSVG).join('');
+        const script = document.createElement('script');
+        script.id = 'jsonp-script';
+        script.src = fullUrl;
+        
+        // Po načítaní ho upraceme
+        script.onload = () => script.remove();
+        
+        document.body.appendChild(script);
+    }
+
+    // Automatické načítanie pri otvorení stránky
+    window.onload = refreshData;
     
-    // 4. PROGRESS BAR (0-100)
-    const p = Math.min((wVal / 1000) * 100, 100);
-    document.getElementById('bar').innerHTML = Array.from({length:20}, (_,i) => 
-        `<div class="seg ${i < p/5 ? 'on' : ''}" style="height:${15+(i*3.5)}px"></div>`).join('');
-
-    // 5. DĹŽKA (odometer)
-    const lVal = Math.round(parseFloat(dlzkaZTabulky)) || 0;
-    const lStr = lVal.toString().padStart(6, '0');
-    document.getElementById('odo').innerHTML = lStr.split('').map(n => `<div class="odo-digit">${n}</div>`).join('');
-
-    // 6. TEXTY
-    document.getElementById('material').innerText = materialZTabulky || "---";
-    document.getElementById('spoolId').innerText = idZTabulky || "---";
-
-    // 7. VÝSTRAHA (blikajúci vykričník)
-    document.getElementById('alert').style.display = (lVal < 10 || wVal < 50) ? 'block' : 'none';
-};
-
-        function update() {
-            const s = document.createElement('script');
-            s.src = `${SCRIPT_URL}?action=dashboard&callback=handleData&t=${Date.now()}`;
-            document.head.appendChild(s);
-            setTimeout(() => s.remove(), 2000);
-        }
-
-        update();
-        setInterval(update, 10000);
-    </script>
+    // Bonus: Automatický refresh každých 5 minút (300 000 ms)
+    setInterval(refreshData, 300000);
+</script>
 </body>
 </html>
