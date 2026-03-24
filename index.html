@@ -73,58 +73,52 @@
     </div>
 
    <script>
-    // Táto funkcia spracuje dáta, ktoré vráti App Script (JSONP)
+    // 1. TÁTO FUNKCIA SPRACOVÁVA PRICHÁDZAJÚCE DÁTA
     function handleData(data) {
-        console.log("Prijaté dáta:", data);
-        
-        // Aktualizácia hodnôt na stránke (používam ID z tvojho pôvodného webu)
-        // Ak máš v HTML iné ID, len ich tu prepíš
-        if (document.getElementById('weight-value')) {
-            document.getElementById('weight-value').innerText = data.weight;
+        console.log("Dáta úspešne prijaté:", data);
+
+        // Mapovanie dát na tvoje konkrétne ID v HTML
+        // Tvoj skript vracia: weight, length, material, id
+        if (data) {
+            document.getElementById('vaha').innerText = data.weight || "0";
+            document.getElementById('dlzka').innerText = data.length || "0";
+            document.getElementById('material').innerText = data.material || "---";
+            document.getElementById('id-filamentu').innerText = data.id || "---";
+            
+            // Ak chceš vidieť v konzole, či to prešlo
+            console.log("UI aktualizované");
         }
-        if (document.getElementById('length-value')) {
-            document.getElementById('length-value').innerText = data.length;
-        }
-        if (document.getElementById('material-name')) {
-            document.getElementById('material-name').innerText = data.material;
-        }
-        if (document.getElementById('filament-id')) {
-            document.getElementById('filament-id').innerText = data.id;
-        }
-        
-        // Odstránime "loading" efekt, ak by si nejaký mal
-        console.log("Dashboard aktualizovaný.");
     }
 
-    // Hlavná funkcia na načítanie dát
+    // 2. FUNKCIA NA VYŽIADANIE DÁT (JSONP)
     function refreshData() {
-        console.log("Ťahám nové dáta...");
+        // Tvoja URL z App Scriptu
+        const baseUrl = "https://script.google.com/macros/s/AKfycbxY4lXaenvrMR-tJpkcNIWyZRENHQLacS0Q_FBFBNNY81wF-W_Z1ThQBiqui11qislCSA/exec"; 
         
-        // TVOJA URL - doplň si tam tú svoju reálnu adresu!
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbxY4lXaenvrMR-tJpkcNIWyZRENHQLacS0Q_FBFBNNY81wF-W_Z1ThQBiqui11qislCSA/exec"; 
-        
-        // Musíme pridať ?action=dashboard, aby tvoj App Script prešiel cez IF podmienku
-        const fullUrl = scriptUrl + "?action=dashboard&callback=handleData&t=" + new Date().getTime();
-        
-        // Vytvoríme script element (JSONP princíp)
-        const oldScript = document.getElementById('jsonp-script');
-        if (oldScript) oldScript.remove(); // Vymažeme starý pokus, ak tam bol
+        // Musíme pridať ?action=dashboard, inak tvoj App Script vráti prázdno (riadok 6 na fotke)
+        const fullUrl = baseUrl + "?action=dashboard&callback=handleData&t=" + new Date().getTime();
 
+        // Odstránime starý skript, ak tam ostal z predchádzajúceho kliku
+        const oldScript = document.getElementById('jsonp-request');
+        if (oldScript) oldScript.remove();
+
+        // Vytvoríme nový skript element
         const script = document.createElement('script');
-        script.id = 'jsonp-script';
+        script.id = 'jsonp-request';
         script.src = fullUrl;
         
-        // Po načítaní ho upraceme
-        script.onload = () => script.remove();
-        
+        // Error handling - ak by Google script neodpovedal
+        script.onerror = function() {
+            console.error("Chyba pri načítaní dát z Google Scriptu.");
+            document.getElementById('vaha').innerText = "ERR";
+        };
+
         document.body.appendChild(script);
     }
 
-    // Automatické načítanie pri otvorení stránky
+    // Spustiť hneď po načítaní stránky
     window.onload = refreshData;
-    
-    // Bonus: Automatický refresh každých 5 minút (300 000 ms)
-    setInterval(refreshData, 300000);
 </script>
+    
 </body>
 </html>
