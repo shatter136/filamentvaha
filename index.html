@@ -159,7 +159,14 @@
     font-family: 'Seven Segment', sans-serif;
     font-weight: bold;
     font-size: 1.8rem;
-    text-shadow: 0 0 10px var(--neon-yellow);
+    text-shadow: 
+        0 0 5px var(--neon-yellow),
+        0 0 15px rgba(240, 240, 0, 0.8);
+        
+    /* ŽIARA OKOLO CELÉHO SEGMENTU */
+    box-shadow: 
+        0 0 8px rgba(240, 240, 0, 0.3), 
+        inset 0 0 4px rgba(240, 240, 0, 0.2);
     min-width: 25px;
     text-align: center;
 }
