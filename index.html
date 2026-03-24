@@ -133,14 +133,15 @@
 }
 
         .digit {
-    background: var(--neon-yellow);
-    color: black;
+    font-family: 'Seven Segment', sans-serif;
+    background: rgba(240, 240, 0, 0.1); /* Skúsme dať tmavšie pozadie a len svietiaci text */
+    color: var(--neon-yellow);
+    border: 1px solid rgba(240, 240, 0, 0.3);
     padding: 5px 8px;
     font-weight: bold;
-    font-size: 1.5rem;
-    box-shadow: 0 0 5px var(--neon-yellow); /* Glow pre jednotlivé číslice */
+    font-size: 1.8rem;
+    text-shadow: 0 0 10px var(--neon-yellow);
 }
-
         /* Ikonky */
         .warning {
             position: absolute;
