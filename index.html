@@ -64,30 +64,32 @@
         }
 
         window.handleData = function(d) {
-            if (!d) return;
-            
-            // Váha
-            const wVal = Math.round(d.weight) || 0;
-            const wStr = wVal.toString().padStart(3, ' ');
-            document.getElementById('weight').innerHTML = wStr.split('').map(createDigitSVG).join('');
-            
-            // Progress Bar
-            const p = Math.min((wVal / 1000) * 100, 100);
-            document.getElementById('bar').innerHTML = Array.from({length:20}, (_,i) => 
-                `<div class="seg ${i < p/5 ? 'on' : ''}" style="height:${15+(i*3.5)}px"></div>`).join('');
+    if (!d) return;
 
-            // Dĺžka
-            const lVal = Math.round(d.length) || 0;
-            const lStr = lVal.toString().padStart(6, '0');
-            document.getElementById('odo').innerHTML = lStr.split('').map(n => `<div class="odo-digit">${n}</div>`).join('');
+    // Tvoj App Script posiela priamo d.weight a d.length (vidím to v sieťovej komunikácii)
+    const wVal = Math.round(parseFloat(d.weight)) || 0;
+    const lVal = Math.round(parseFloat(d.length)) || 0;
 
-            // Texty
-            document.getElementById('material').innerText = d.material || "---";
-            document.getElementById('spoolId').innerText = d.id || "---";
+    // 1. VÁHA - vykreslenie
+    const wStr = wVal.toString().padStart(3, ' ');
+    document.getElementById('weight').innerHTML = wStr.split('').map(createDigitSVG).join('');
+    
+    // 2. PROGRESS BAR
+    const p = Math.min((wVal / 1000) * 100, 100);
+    document.getElementById('bar').innerHTML = Array.from({length:20}, (_,i) => 
+        `<div class="seg ${i < p/5 ? 'on' : ''}" style="height:${15+(i*3.5)}px"></div>`).join('');
 
-            // Výstraha
-            document.getElementById('alert').style.display = (lVal < 10 || wVal < 50) ? 'block' : 'none';
-        };
+    // 3. DĹŽKA - odometer
+    const lStr = lVal.toString().padStart(6, '0');
+    document.getElementById('odo').innerHTML = lStr.split('').map(n => `<div class="odo-digit">${n}</div>`).join('');
+
+    // 4. TEXTY
+    document.getElementById('material').innerText = d.material || "NEZNÁMY";
+    document.getElementById('spoolId').innerText = d.id || "---";
+
+    // 5. VÝSTRAHA
+    document.getElementById('alert').style.display = (lVal < 10 || wVal < 50) ? 'block' : 'none';
+};
 
         function update() {
             const s = document.createElement('script');
