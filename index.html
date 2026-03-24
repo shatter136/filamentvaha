@@ -131,29 +131,37 @@
         }
 
         /* Celková dĺžka (Odometer look) */
-        .odometer-container {
-            margin-top: 20px;
-            text-align: center;
-        }
+       .odometer-container {
+    margin-top: 15px; /* Trochu sme znížili, aby bolo miesto */
+    text-align: center;
+    width: 100%; /* Dôležité pre zarovnanie na stred */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-       .odometer {
+.odometer {
     display: flex;
     background: rgba(240, 240, 0, 0.05);
     border: 2px solid var(--neon-yellow);
     padding: 5px;
-    gap: 3px;
-    box-shadow: 0 0 20px rgba(240, 240, 0, 0.4), inset 0 0 10px rgba(240, 240, 0, 0.2);
+    gap: 3px; /* Jemný rozostup */
+    box-shadow: 0 0 15px rgba(240, 240, 0, 0.4), inset 0 0 5px rgba(240, 240, 0, 0.2);
+    /* TOTO JE ZMENA: Presná šírka pre 3 číslice + 'M' */
+    width: 110px; 
+    justify-content: center; /* Zarovná číslice do stredu žltého rámu */
 }
 
-        .digit {
-    font-family: 'Seven Segment', sans-serif;
-    background: rgba(240, 240, 0, 0.1); /* Skúsme dať tmavšie pozadie a len svietiaci text */
-    color: var(--neon-yellow);
-    border: 1px solid rgba(240, 240, 0, 0.3);
-    padding: 5px 8px;
+.digit {
+    background: var(--neon-yellow);
+    color: black;
+    /* TOTO SÚ ZMENY: Ubrali sme šírku a zväčšili font */
+    padding: 3px 6px; 
     font-weight: bold;
-    font-size: 1.8rem;
-    text-shadow: 0 0 10px var(--neon-yellow);
+    font-size: 1.8rem; /* Väčšie čísla, aby vyplnili priestor */
+    box-shadow: 0 0 5px var(--neon-yellow);
+    width: 25px; /* Fixná šírka segmentu */
+    text-align: center;
 }
         /* Ikonky */
         .warning {
