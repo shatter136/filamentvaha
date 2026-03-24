@@ -3,102 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <title>PRUSA3S FILAMENT</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Teko:wght@500&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #05060f; --cyan: #00f2ff; --yellow: #f4d03f; --glow-y: 0 0 20px rgba(244,208,63,0.8); }
-        body { background: var(--bg); color: var(--cyan); font-family: 'Orbitron', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-transform: uppercase; overflow: hidden; }
-        .dashboard { width: 750px; padding: 40px; border: 4px solid var(--cyan); box-shadow: 0 0 30px var(--cyan); background: #000; position: relative; }
+        :root { --bg: #05060f; --cyan: #00f2ff; --yellow: #f4d03f; --glow-y: 0 0 20px var(--yellow); }
+        body { background: var(--bg); color: var(--cyan); font-family: 'Orbitron', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-transform: uppercase; }
         
-        /* HORNÝ BAR */
-        .bar-wrapper { display: flex; align-items: flex-end; gap: 4px; height: 100px; border-bottom: 3px solid var(--cyan); padding-bottom: 10px; margin-bottom: 5px; }
-        .seg { flex: 1; background: #111; transition: 0.2s; }
+        .dashboard { 
+            width: 720px; padding: 40px; 
+            border: 4px solid var(--cyan); box-shadow: 0 0 25px var(--cyan); 
+            background: #000; position: relative;
+        }
+
+        /* TACHOMETER BAR */
+        .bar-wrapper { display: flex; align-items: flex-end; gap: 4px; height: 100px; border-bottom: 3px solid var(--cyan); padding-bottom: 10px; }
+        .seg { flex: 1; background: #151515; transition: 0.3s; }
         .seg.on { background: var(--yellow); box-shadow: var(--glow-y); }
-        .scale { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 40px; text-shadow: 0 0 10px var(--cyan); }
+        .scale { display: flex; justify-content: space-between; font-size: 0.8rem; margin: 10px 0 40px 0; }
 
-        /* VÁHA - SEGMENTOVÝ LOOK */
-        .main { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; height: 200px; }
-        #weight-val { font-family: 'Share Tech Mono', monospace; font-size: 14rem; color: var(--yellow); text-shadow: var(--glow-y); line-height: 0.8; letter-spacing: -8px; }
-        .side { width: 220px; font-size: 0.9rem; line-height: 1.6; }
+        /* HLAVNÉ ČÍSLO VÁHY */
+        .main { display: flex; justify-content: space-between; align-items: center; margin: 30px 0; }
+        #weight-val { 
+            font-family: 'Teko', sans-serif; /* Tento font pri veľkosti 15rem vyzerá ako segmenty */
+            font-size: 16rem; color: var(--yellow); text-shadow: var(--glow-y); 
+            line-height: 0.7; letter-spacing: -2px; margin: 0;
+        }
+        .side { width: 180px; font-size: 1rem; color: var(--cyan); }
 
-        /* ODOMETER (POČÍTADLO) */
-        .odo-container { text-align: center; margin-top: 20px; }
-        .odo-box { display: inline-flex; border: 3px solid var(--yellow); padding: 10px; gap: 5px; background: #080808; box-shadow: inset 0 0 15px rgba(244,208,63,0.4); }
-        .digit { font-size: 3rem; color: var(--yellow); text-shadow: var(--glow-y); min-width: 40px; text-align: center; border-right: 1px solid rgba(244,208,63,0.2); }
+        /* ODOMETER KM ŠTÝL */
+        .odo-box { display: inline-flex; border: 3px solid var(--yellow); padding: 5px; gap: 5px; background: #000; box-shadow: inset 0 0 15px rgba(244,208,63,0.5); }
+        .digit { 
+            font-size: 3.5rem; color: var(--yellow); text-shadow: var(--glow-y); 
+            min-width: 45px; text-align: center; border: 1px solid rgba(244,208,63,0.3);
+            background: linear-gradient(180deg, #111 0%, #000 50%, #111 100%);
+        }
     </style>
 </head>
 <body>
+
 <div class="dashboard">
-    <div style="text-align: center; letter-spacing: 12px; font-size: 1.4rem; margin-bottom: 25px;">FILAMENT VÁHA</div>
+    <div style="text-align:center; letter-spacing:10px; margin-bottom:20px; font-size: 1.5rem;">FILAMENT VÁHA</div>
+    
     <div class="bar-wrapper" id="bar"></div>
     <div class="scale"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span></div>
-    
+
     <div class="main">
-        <div class="side" id="mat-label">ČAKÁM...</div>
-        <div style="text-align: center;">
+        <div class="side" id="mat-label">NAČÍTAM...</div>
+        <div style="text-align:center;">
             <div id="weight-val">0</div>
-            <div style="font-size: 2.5rem; color: var(--yellow); margin-top: 10px; font-weight: 900;">g</div>
+            <div style="font-size: 2rem; color: var(--yellow); font-weight: 900;">g</div>
         </div>
-        <div class="side" style="text-align: right;" id="data-id">---</div>
+        <div class="side" style="text-align:right;" id="data-id">---</div>
     </div>
 
-    <div class="odo-container">
-        <div style="font-size: 0.8rem; letter-spacing: 6px; opacity: 0.6; margin-bottom: 15px;">TOTAL FILAMENT LENGTH</div>
+    <div style="text-align:center;">
+        <div style="font-size: 0.8rem; letter-spacing: 5px; opacity: 0.7; margin-bottom:10px;">TOTAL LENGTH</div>
         <div class="odo-box" id="odometer"></div>
+        <div style="display:inline-block; font-size: 2.5rem; color: var(--yellow); margin-left:10px; vertical-align:middle;">M</div>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzj2tkTI5AwLSEyi-7Yvzqi8Xbms0_0zjhxgZIt_1dnXDAkM1ODX674_P9YT0XdMMiyNg/exec?action=dashboard";
+    // TVOJA NOVÁ URL (nezabudni na &callback=)
+    const BASE_URL = "https://script.google.com/macros/s/AKfycbzPqZzSsKuqgyTkY-gMta4CIHsK5RHRvV2Wr8yGqf-afgznVlLwEKMo1dmLOB9zXam0pw/exec?action=dashboard";
 
-    // Vygeneruj 40 dielikov baru
-    const barCont = document.getElementById('bar');
+    // Vygeneruj segmenty
+    const bar = document.getElementById('bar');
     for(let i=0; i<40; i++) {
         let s = document.createElement('div');
         s.className = 'seg';
         s.style.height = (25 + (i * 1.8)) + 'px';
-        barCont.appendChild(s);
+        bar.appendChild(s);
     }
 
-    async function updateData() {
-        try {
-            const res = await fetch(API_URL + "&t=" + Date.now());
-            const data = await res.json();
-            if (!data.rows || data.rows.length === 0) return;
-
-            const lastRow = data.rows[data.rows.length - 1];
-            
-            // INTELIGENTNÝ PARSING (ak je ID zlúčené s materiálom, rozsekáme to)
-            let id = lastRow[0] ? lastRow[0].toString() : "---";
-            if (id.includes(",")) id = id.split(",")[0]; // Zoberie len prvé slovo pred čiarkou
-
-            let mat = lastRow[2] || "NEZNÁMY";
-            if (mat.includes(",")) mat = mat.split(",")[0];
-
-            const vaha = Math.round(parseFloat(lastRow[4].toString().replace(',', '.'))) || 0;
-            const len = Math.round(parseFloat(lastRow[5].toString().replace(',', '.'))) || 0;
-
-            // UPDATE TEXTOV
-            document.getElementById('weight-val').innerText = vaha;
-            document.getElementById('mat-label').innerText = mat;
-            document.getElementById('data-id').innerText = "ID: " + id;
-
-            // BAR (Max 1000g)
-            const segs = document.querySelectorAll('.seg');
-            const activeLimit = (vaha / 1000) * 40;
-            segs.forEach((s, i) => s.classList.toggle('on', i < activeLimit));
-
-            // ODOMETER (6 miest)
-            const odo = document.getElementById('odometer');
-            odo.innerHTML = '';
-            len.toString().padStart(6, '0').split('').forEach(n => {
-                const d = document.createElement('div');
-                d.className = 'digit';
-                d.innerText = n;
-                odo.appendChild(d);
-            });
-        } catch (e) { document.getElementById('mat-label').innerText = "DATA ERROR"; }
+    // JSONP Funkcia - toto obíde CORS chybu v konzole
+    function loadData() {
+        const script = document.createElement('script');
+        script.src = `${BASE_URL}&callback=processData&t=${Date.now()}`;
+        document.body.appendChild(script);
+        script.onload = () => script.remove();
     }
-    updateData(); setInterval(updateData, 10000);
+
+    window.processData = function(data) {
+        if (!data.rows) return;
+        const lastRow = data.rows[data.rows.length - 1];
+
+        const vaha = Math.round(parseFloat(lastRow[4].toString().replace(',', '.'))) || 0;
+        const len = Math.round(parseFloat(lastRow[5].toString().replace(',', '.'))) || 0;
+        const id = lastRow[0] ? lastRow[0].toString().split(',')[0] : "---";
+
+        document.getElementById('weight-val').innerText = vaha;
+        document.getElementById('mat-label').innerText = lastRow[2] || "UNKNOWN";
+        document.getElementById('data-id').innerText = id;
+
+        // Update baru
+        const segs = document.querySelectorAll('.seg');
+        segs.forEach((s, i) => s.classList.toggle('on', i < (vaha/1000) * 40));
+
+        // Update odometra
+        const odo = document.getElementById('odometer');
+        odo.innerHTML = '';
+        len.toString().padStart(6, '0').split('').forEach(n => {
+            odo.innerHTML += `<div class="digit">${n}</div>`;
+        });
+    };
+
+    loadData();
+    setInterval(loadData, 10000);
 </script>
 </body>
 </html>
