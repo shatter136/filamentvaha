@@ -91,9 +91,10 @@
 </div>
 
 <script>
-    // SEM VLOŽ SVOJ CSV LINK
+    // SEM VLOŽ TEN NOVÝ LINK (s gid=...)
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxFZl_JAITJGkdodcTo1ZBF6Do-cjigonJjrTJUDsOG8AWZL9HAmUUWOAd9NkwIBMCYHtOqVTZ9KV7/pub?gid=233832092&single=true&output=csv";
 
+    // Vygenerovanie baru (35 segmentov)
     const bar = document.getElementById('bar');
     for(let i=0; i<35; i++) {
         let s = document.createElement('div');
@@ -106,28 +107,43 @@
         try {
             const res = await fetch(CSV_URL + "&t=" + Date.now());
             const text = await res.text();
-            const rows = text.trim().split('\n');
+            
+            // Rozdelenie na riadky
+            const rows = text.trim().split(/\r?\n/);
+            if (rows.length < 2) return; 
+
+            // Zoberieme posledný zapísaný riadok
             const lastRow = rows[rows.length - 1];
             
-            // Ošetrenie čiarky v CSV a úvodzoviek
+            // Parser, ktorý zvládne čiarky v úvodzovkách
             const col = lastRow.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
 
-            // Mapovanie podľa tvojej tabuľky:
-            const idVal  = col[0] || "---";       // Stĺpec A
-            const matVal = col[2] || "NEZNÁMY";   // Stĺpec C
-            const vahaNum = parseFloat((col[4] || "0").replace(',', '.')); // Stĺpec E
-            const lenNum  = parseFloat((col[5] || "0").replace(',', '.')); // Stĺpec F
+            // Mapovanie podľa tvojho "PREHLAD" sheetu:
+            // A=0 (ID), C=2 (Materiál), E=4 (Váha), F=5 (Dĺžka)
+            const idVal  = col[0] || "---";
+            const matVal = col[2] || "NEZNÁMY";
+            
+            // Konverzia textu "795,40" na číslo 795.40
+            const vahaRaw = (col[4] || "0").replace(',', '.');
+            const lenRaw  = (col[5] || "0").replace(',', '.');
+            
+            const vahaNum = parseFloat(vahaRaw) || 0;
+            const lenNum  = parseFloat(lenRaw) || 0;
 
+            // UI Update
             document.getElementById('weight-val').innerText = Math.round(vahaNum);
             document.getElementById('mat-label').innerText = matVal;
             document.getElementById('data-len').innerText = Math.round(lenNum);
             document.getElementById('data-id').innerText = "ID: " + idVal;
 
-            // Odometer
+            // Odometer (6 miest)
             const odo = document.getElementById('odometer');
             odo.innerHTML = '';
             Math.round(lenNum).toString().padStart(6, '0').split('').forEach(n => {
-                odo.innerHTML += `<div class="digit">${n}</div>`;
+                const d = document.createElement('div');
+                d.className = 'digit';
+                d.innerText = n;
+                odo.appendChild(d);
             });
 
             // Progress Bar (Max 1000g)
@@ -138,13 +154,13 @@
             });
 
         } catch (e) {
-            console.error(e);
+            console.error("Chyba:", e);
             document.getElementById('mat-label').innerText = "CHYBA DAT";
         }
     }
 
     updateData();
-    setInterval(updateData, 15000);
+    setInterval(updateData, 15000); // Refresh každých 15 sekúnd
 </script>
 
 </body>
