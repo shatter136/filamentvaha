@@ -72,7 +72,7 @@
 }
 
 .bar {
-    width: 14px; /* O chlp širšie */
+    width: 13px; /* O chlp širšie */
     background: rgba(240, 240, 0, 0.05);
     border: 1px solid rgba(240, 240, 0, 0.1);
 }
@@ -94,11 +94,13 @@
 
         /* Hlavná váha */
         .weight-display {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 5.5rem;
+    /* Tu je tá zmena */
+    font-family: 'Seven Segment', sans-serif; 
+    font-size: 7rem; /* Segmenty bývajú užšie, tak môžeme trochu pridať na veľkosti */
     color: var(--neon-yellow);
     text-shadow: 0 0 15px var(--neon-yellow), 0 0 30px rgba(240, 240, 0, 0.6);
     margin: 5px 0;
+    letter-spacing: 5px; /* Aby sa čísla na seba nelepili */
 }
 
         .unit {
