@@ -172,12 +172,22 @@
         .material-label {
     position: absolute;
     left: 20px;
-    top: 55%; /* Posun na stred výšky dashboardu */
+    top: 45%; /* Posun na stred výšky dashboardu */
     transform: translateY(-50%);
     font-size: 0.8rem;
     width: 80px;
     text-align: left;
     line-height: 1.2;
+            color: var(--neon-blue);
+    /* Vrstvený glow: 
+       1. úzka ostrá žiara, 
+       2. stredná rozptýlená, 
+       3. široká atmosférická žiara */
+    text-shadow: 
+        0 0 5px var(--neon-blue),
+        0 0 10px var(--neon-blue),
+        0 0 20px rgba(0, 212, 255, 0.7),
+        0 0 40px rgba(0, 212, 255, 0.4);
 }
     </style>
 </head>
