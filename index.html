@@ -1,109 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <style>
-        :root { --gsi: #adff2f; --c: #00f2ff; --bg: #000; --glow: 0 0 20px #adff2f, 0 0 40px rgba(173,255,47,0.5); }
-        body { background: var(--bg); color: var(--gsi); font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-transform: uppercase; }
-        .dash { width: 800px; padding: 40px; border: 5px solid var(--c); box-shadow: 0 0 40px var(--c); background: #000; position: relative; }
-        
-        /* GSI BAR */
-        .bar { display: flex; align-items: flex-end; gap: 4px; height: 110px; margin-bottom: 5px; border-bottom: 2px solid var(--gsi); }
-        .s { flex: 1; background: #111; height: 20px; transition: 0.2s; }
-        .s.on { background: var(--gsi); box-shadow: var(--glow); }
-        .scale { display: flex; justify-content: space-between; font-size: 14px; font-weight: 900; margin-bottom: 40px; }
-
-        /* VÁHA - FIXNÉ SEGMENTY */
-        .w-box { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-        .digit { position: relative; width: 70px; height: 120px; }
-        .seg { position: absolute; background: #151515; border-radius: 5px; transition: 0.1s; }
-        .seg.on { background: var(--gsi); box-shadow: var(--glow); }
-        
-        /* Pozície segmentov */
-        .a { top: 0; left: 10px; width: 50px; height: 10px; }
-        .b { top: 10px; right: 0; width: 10px; height: 45px; }
-        .c { bottom: 10px; right: 0; width: 10px; height: 45px; }
-        .d { bottom: 0; left: 10px; width: 50px; height: 10px; }
-        .e { bottom: 10px; left: 0; width: 10px; height: 45px; }
-        .f { top: 10px; left: 0; width: 10px; height: 45px; }
-        .g { top: 55px; left: 10px; width: 50px; height: 10px; }
-
-        /* ODOMETER VALČEKY */
-        .odo { display: flex; justify-content: center; gap: 8px; margin-top: 30px; }
-        .roll { width: 55px; height: 80px; background: linear-gradient(180deg, #000 0%, #222 50%, #000 100%); border: 2px solid var(--gsi); display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 900; box-shadow: inset 0 0 15px #000; position: relative; }
-        .roll::after { content: ""; position: absolute; width: 130%; height: 2px; background: var(--gsi); transform: rotate(-45deg); opacity: 0.3; }
-    </style>
     <title>PRUSA3S FILAMENT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gsi-yellow: #ccff00; 
+            --gsi-cyan: #00f2ff;
+            --bg: #000;
+            --glow-y: 0 0 15px rgba(204,255,0,0.8);
+            --glow-c: 0 0 15px rgba(0,242,255,0.8);
+        }
+
+        body { background: var(--bg); color: var(--gsi-yellow); font-family: 'Orbitron', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-transform: uppercase; overflow: hidden; }
+        
+        .dashboard { width: 750px; padding: 45px; border: 4px solid var(--gsi-cyan); box-shadow: 0 0 30px var(--gsi-cyan); background: radial-gradient(circle, #080808 0%, #000 100%); }
+
+        /* TYRKYSOVÉ TEXTY */
+        .cyan-text { color: var(--gsi-cyan); text-shadow: var(--glow-c); font-weight: 700; }
+
+        /* GSI BAR TACHOMETER */
+        .bar-section { margin-bottom: 20px; }
+        .bar-wrapper { display: flex; align-items: flex-end; gap: 4px; height: 100px; border-bottom: 2px solid var(--gsi-cyan); padding-bottom: 10px; }
+        .seg { flex: 1; background: #1a1a1a; transition: 0.3s; }
+        .seg.on { background: var(--gsi-yellow); box-shadow: var(--glow-y); }
+        
+        /* STUPNICA PO 10-KACH */
+        .scale { display: flex; justify-content: space-between; font-size: 0.8rem; margin: 8px 0 30px 0; color: var(--gsi-cyan); text-shadow: var(--glow-c); font-weight: 900; }
+
+        /* VÁHA */
+        .main-display { display: flex; justify-content: space-between; align-items: center; margin: 30px 0; height: 160px; }
+        #weight-val { font-size: 13rem; color: var(--gsi-yellow); text-shadow: var(--glow-y); line-height: 0.7; letter-spacing: -2px; }
+        .side-info { width: 180px; font-size: 1rem; }
+
+        /* ODOMETER */
+        .odo-container { text-align: center; margin-top: 20px; }
+        .odo-box { display: inline-flex; border: 2px solid var(--gsi-yellow); padding: 5px; gap: 4px; background: #000; }
+        .digit { 
+            font-size: 3rem; color: var(--gsi-yellow); text-shadow: var(--glow-y); 
+            min-width: 40px; text-align: center; border: 1px solid rgba(204,255,0,0.2);
+            background: linear-gradient(180deg, #111 0%, #000 50%, #111 100%);
+            position: relative;
+        }
+        .zero-strike::after {
+            content: ""; position: absolute; left: 50%; top: 50%; width: 130%; height: 2px;
+            background: var(--gsi-yellow); opacity: 0.4; transform: translate(-50%, -50%) rotate(-45deg);
+        }
+    </style>
 </head>
 <body>
-    <div class="dash">
-        <h1 style="text-align:center; letter-spacing:15px;">filament váha</h1>
-        <div class="bar" id="b"></div>
-        <div class="scale"><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100</span></div>
 
-        <div style="display:flex; justify-content: space-around; align-items: center;">
-            <div id="mat" style="width:150px; font-weight:900;">NAČÍTAM...</div>
-            <div class="w-box" id="w"></div>
-            <div id="sid" style="width:150px; text-align:right;">ID: ---</div>
+<div class="dashboard">
+    <div class="cyan-text" style="text-align:center; letter-spacing:15px; font-size: 1.6rem; margin-bottom:25px;">FILAMENT VÁHA</div>
+    
+    <div class="bar-section">
+        <div class="bar-wrapper" id="bar"></div>
+        <div class="scale">
+            <span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span>
         </div>
-
-        <p style="text-align:center; margin-top:30px; font-weight:900;">dlzka</p>
-        <div class="odo" id="o"></div>
     </div>
 
+    <div class="main-display">
+        <div class="side-info cyan-text" id="mat-label">NAČÍTAM...</div>
+        <div style="text-align:center;">
+            <div id="weight-val">0</div>
+            <div class="cyan-text" style="font-size: 2rem;">GRAMOV</div>
+        </div>
+        <div class="side-info cyan-text" style="text-align:right;" id="data-id">ID: ---</div>
+    </div>
+
+    <div class="odo-container">
+        <div class="cyan-text" style="font-size: 0.8rem; letter-spacing: 5px; margin-bottom:10px;">DLZKA</div>
+        <div class="odo-box" id="odometer"></div>
+        <div class="cyan-text" style="display:inline-block; font-size: 2rem; margin-left:10px; vertical-align:middle;">M</div>
+    </div>
+</div>
+
 <script>
-    // SEM DAJ SVOJU URL Z APPS SCRIPTU (DEPLOYMENT)
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5I7Jen5luqau6ZMnXxT8weabJqhmrTRBmQCPjwlqE-VGhC62nXOnWWt45sDGgCH3V/exec"; 
+    // TU VLOŽ SVOJU URL Z APPS SCRIPTU
+    const BASE_URL = "https://script.google.com/macros/s/AKfycbyYSKGcrWxBjruz8j5CfGKxabUT7SaoowNi74isT2bwn33EySMG5sbQgV0viy1hYObZUQ/exec?action=dashboard";
 
-    const segMap = {
-        '0':['a','b','c','d','e','f'], '1':['b','c'], '2':['a','b','g','e','d'],
-        '3':['a','b','g','c','d'], '4':['f','g','b','c'], '5':['a','f','g','c','d'],
-        '6':['a','f','e','d','c','g'], '7':['a','b','c'], '8':['a','b','c','d','e','f','g'], '9':['a','b','c','d','f','g'], ' ':[]
-    };
-
-    // Inicializácia Baru a Digitov
-    const b = document.getElementById('b');
-    for(let i=0; i<50; i++) b.innerHTML += `<div class="s" style="height:${20+(i*1.5)}px"></div>`;
-    
-    const w = document.getElementById('w');
-    for(let i=0; i<4; i++) {
-        w.innerHTML += `<div class="digit" id="dig-${i}">` + 
-            ['a','b','c','d','e','f','g'].map(s => `<div class="seg ${s}"></div>`).join('') + `</div>`;
+    const bar = document.getElementById('bar');
+    for(let i=0; i<50; i++) {
+        let s = document.createElement('div');
+        s.className = 'seg';
+        s.style.height = (20 + (i * 1.6)) + 'px';
+        bar.appendChild(s);
     }
 
-    function update() {
-        const s = document.createElement('script');
-        s.src = SCRIPT_URL + (SCRIPT_URL.includes('?') ? '&' : '?') + "action=dashboard&callback=processData&t=" + Date.now();
-        document.body.appendChild(s);
-        s.onload = () => s.remove();
+    function fetchData() {
+        const script = document.createElement('script');
+        script.src = `${BASE_URL}&callback=processData&t=${Date.now()}`;
+        document.body.appendChild(script);
+        script.onload = () => script.remove();
     }
 
     window.processData = function(data) {
-        if(!data.rows || data.rows.length === 0) return;
+        if (!data.rows || data.rows.length === 0) return;
         const last = data.rows[data.rows.length - 1];
-        const v = Math.round(parseFloat(last[4].toString().replace(',','.'))) || 0;
-        const l = Math.round(parseFloat(last[5].toString().replace(',','.'))) || 0;
 
-        document.getElementById('mat').innerText = last[2] || "NEZNÁMY";
-        document.getElementById('sid').innerText = "ID: " + (last[0] || "---");
+        const vahaRaw = last[4] ? last[4].toString().replace(',', '.') : "0";
+        const lenRaw = last[5] ? last[5].toString().replace(',', '.') : "0";
 
-        // Váha update
-        const vStr = v.toString().padStart(4, ' ');
-        for(let i=0; i<4; i++) {
-            const segs = document.querySelectorAll(`#dig-${i} .seg`);
-            segs.forEach(s => s.classList.remove('on'));
-            if(segMap[vStr[i]]) segMap[vStr[i]].forEach(cls => {
-                document.querySelector(`#dig-${i} .${cls}`).classList.add('on');
-            });
-        }
+        const vaha = Math.round(parseFloat(vahaRaw)) || 0;
+        const len = Math.round(parseFloat(lenRaw)) || 0;
+        const mat = last[2] || "NEZNÁMY";
+        const id = last[0] || "---";
 
-        // Bar a Odometer
-        document.querySelectorAll('.s').forEach((el, i) => el.classList.toggle('on', i < (v/1000)*50));
-        document.getElementById('o').innerHTML = l.toString().padStart(6, '0').split('').map(n => `<div class="roll">${n}</div>`).join('');
-    };
+        document.getElementById('weight-val').innerText = vaha;
+        document.getElementById('mat-label').innerText = mat;
+        document.getElementById('data-id').innerText = "ID: " + id;
 
-    update();
-    setInterval(update, 10000);
+        const segs = document.querySelectorAll('.seg');
+        const activeCount = Math.floor((vaha / 1000) * 50);
+        segs.forEach((s, i) => s.classList.toggle('on', i < activeCount));
+
+        const odo = document.getElementById('odometer');
+        odo.innerHTML = '';
+        len.toString().padStart(6, '0').split('').forEach(n => {
+            const digit = document.createElement('div');
+            digit.className = 'digit';
+            digit.innerText = n;
+            if(n === "0") digit.classList.add('zero-strike');
+            odo.appendChild(digit);
+        });
+    }
+
+    fetchData();
+    setInterval(fetchData, 15000);
 </script>
 </body>
 </html>
