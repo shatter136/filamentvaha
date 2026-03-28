@@ -43,6 +43,25 @@
     text-transform: none;
 }
 
+.datetime-label {
+    position: absolute;
+    /* POSUN DOPRAVA */
+    right: 50px; 
+    
+    /* POSUN NIŽŠIE (pod stred, vedľa váhy) */
+    top: 67%; 
+    
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    width: 90px;
+    text-align: right;
+    line-height: 1.4;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 5px var(--neon-blue), 0 0 15px rgba(255, 0, 76, 0.4);
+    font-family: 'seven segment', monospace;
+    text-transform: none; /* Zachová malé/veľké písmená */
+}
+
         .title {
     font-size: 1.1rem;
     margin-bottom: 15px;
@@ -239,6 +258,8 @@
     <div class="weight-display" id="weight-val">0</div>
     <div class="unit">g</div>
 
+<div class="datetime-label" id="last-update">--.--.----<br>--:--:--</div>
+
     <div class="odometer-container">
         <div style="font-size: 0.7rem; margin-bottom: 5px;">dlzka</div>
         <div class="odometer" id="length-val">
@@ -254,7 +275,7 @@
 
 <script>
     // TVOJA URL ADRESA SKRIPTU (nahraď svojou realnou Web App URL)
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyKMKMnrqKwuLXhpqeeYSjHpo_kz2IKT9XCKu6TNFv9SWzuCZUK2y_fgclWc1UIADYUEQ/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyEp_YX-bdfOw2E7Mks5rBoOcQInUQgVYwsdMTvCj4tTOtX6uVKUGtOeMnpBHiwtNUB9Q/exec";
 
     // Vytvorenie grafických stĺpcov (0-100%)
    // Vygenerovanie nižších paličiek
@@ -272,6 +293,16 @@ for (let i = 0; i < 20; i++) {
         // Váha a materiál
         document.getElementById('weight-val').innerText = Math.round(data.weight);
         document.getElementById('material-name').innerText = data.material;
+	
+	if (data.lastUpdate && data.lastUpdate !== "---") {
+        // Skrátime rok z 2024 na 24, ak existuje
+        let cleanUpdate = data.lastUpdate.replace(".20", ".");
+        
+        // Rozdelíme dátum a čas, a vložíme ich na dva riadky
+        document.getElementById('last-update').innerHTML = cleanUpdate.replace(" ", "<br>");
+    } else {
+        document.getElementById('last-update').innerHTML = "--.--.--<br>--:--:--";
+    }
 
         // Blikajúci vykričník (< 50g)
         document.getElementById('warning-icon').style.display = data.weight < 50 ? 'block' : 'none';
