@@ -324,11 +324,13 @@ for (let i = 0; i < 20; i++) {
         document.getElementById('last-update').innerHTML = "--.--.--<br>--:--:--";
     }
 
+		
+
         // Blikajúci vykričník (< 50g)
         document.getElementById('warning-icon').style.display = data.weight < 50 ? 'block' : 'none';
 
         // Update stĺpcov (predpokladáme max 1000g pre 100%)
-        const percentage = Math.min((data.weight / 1000) * 100, 100);
+        const percentage = neaktualne ? 0 : Math.min((data.weight / 1000) * 100, 100);
         const barElements = document.querySelectorAll('.bar');
         const activeCount = Math.floor((percentage / 100) * 20);
         
@@ -337,11 +339,16 @@ for (let i = 0; i < 20; i++) {
         });
 
         // Update dĺžky (odometer štýl)
-        const lengthStr = Math.round(data.length).toString().padStart(4, '0');
-        document.getElementById('length-val').innerHTML = lengthStr.split('').map(d => `<div class="digit">${d}</div>`).join('') + '<span style="color:var(--neon-blue); margin-left:5px; align-self:center">M</span>';
-        const odomContainer = document.getElementById('length-val');
-        odomContainer.innerHTML = lengthStr.split('').map(d => `<div class="digit">${d}</div>`).join('') + '<span style="color:var(--neon-blue); margin-left:5px; align-self:center">M</span>';
-    }
+		
+        // Ak je neaktualne, nastavíme "0000", inak reálnu zaokrúhlenú dĺžku
+const lengthStr = neaktualne ? "0000" : Math.round(data.length).toString().padStart(4, '0');
+
+// Vygenerujeme HTML pre jednotlivé číslice (segmenty)
+const odometerHTML = lengthStr.split('').map(d => `<div class="digit">${d}</div>`).join('') + 
+                     '<span style="color:var(--neon-blue); margin-left:5px; align-self:center">M</span>';
+
+// Zapíšeme to do kontajnera (stačí raz)
+document.getElementById('length-val').innerHTML = odometerHTML;
 
     // JSONP callback funkcia
     function handleData(data) {
