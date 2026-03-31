@@ -290,6 +290,22 @@ for (let i = 0; i < 20; i++) {
 }
 
     function updateDashboard(data) {
+		// --- NOVÁ LOGIKA PRE KONTROLU ČASU ---
+        const teraz = new Date();
+		// Predpokladáme, že data.lastUpdate je v tvare "DD.MM.YYYY HH:MM:SS"
+        // Musíme ho trochu upraviť, aby ho JavaScript prečítal (bodky na pomlčky)
+        const formatovanyDatum = data.lastUpdate.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1');
+        const casPoslednejAktualizacie = new Date(formatovanyDatum);
+        
+        const rozdielMS = teraz - casPoslednejAktualizacie;
+        const jednaHodinaMS = 60 * 60 * 1000;
+
+        let zobrazenaVaha;
+        if (rozdielMS > jednaHodinaMS) {
+            zobrazenaVaha = "---";
+        } else {
+            zobrazenaVaha = Math.round(data.weight);
+        } //koniec kontroly casu
         // Váha a materiál
         document.getElementById('weight-val').innerText = Math.round(data.weight);
         document.getElementById('material-name').innerText = data.material;
