@@ -311,7 +311,7 @@ for (let i = 0; i < 20; i++) {
         zobrazenaVaha = Math.round(data.weight);
     }
         // Váha a materiál
-        document.getElementById('weight-val').innerText = Math.round(data.weight);
+        document.getElementById('weight-val').innerText = zobrazenaVaha;
         document.getElementById('material-name').innerText = data.material;
 	
 	if (data.lastUpdate && data.lastUpdate !== "---") {
