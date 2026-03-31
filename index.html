@@ -49,7 +49,7 @@
     right: 50px; 
     
     /* POSUN NIŽŠIE (pod stred, vedľa váhy) */
-    top: 62%; 
+    top: 60%; 
     
     transform: translateY(-50%);
     font-size: 0.7rem;
@@ -349,7 +349,7 @@ const odometerHTML = lengthStr.split('').map(d => `<div class="digit">${d}</div>
 
 // Zapíšeme to do kontajnera (stačí raz)
 document.getElementById('length-val').innerHTML = odometerHTML;
-
+}
     // JSONP callback funkcia
     function handleData(data) {
         updateDashboard(data);
